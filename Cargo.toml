@@ -14,3 +14,9 @@ serde = "1.0.198"
 serde_json = "1.0.116"
 tokio = "1.37.0"
 uuid = "1.8.0"
+
+[profile.release]
+lto = true
+strip = true
+opt-level = 3
+codegen-units = 1
