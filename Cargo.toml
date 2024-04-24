@@ -8,6 +8,7 @@ edition = "2021"
 [dependencies]
 axum = "0.7.5"
 bson = "2.10.0"
+futures = "0.3.30"
 mongodb = { version = "2.8.2", features = ["async-std"] }
 reqwest = "0.12.3"
 serde = "1.0.198"

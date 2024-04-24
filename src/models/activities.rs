@@ -101,7 +101,8 @@ pub struct Activity {
     pub _id: ObjectId,
     pub name: String,
     pub description: String,
-    pub types: ActivityType,
+    #[serde(rename = "type")]
+    pub activity_type: ActivityType,
     pub duration: i32,
     pub date: String,
     pub created_at: String,
