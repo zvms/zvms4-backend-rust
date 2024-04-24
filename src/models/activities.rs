@@ -1,4 +1,4 @@
-use bson::oid::ObjectId;
+use bson::{oid::ObjectId, Document};
 use serde::{Deserialize, Serialize};
 
 #[derive(Debug, Serialize, Deserialize)]
@@ -111,3 +111,4 @@ pub struct Activity {
     pub status: ActivityStatus,
     pub members: Vec<ActivityMember>,
 }
+
