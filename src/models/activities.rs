@@ -1,4 +1,4 @@
-use bson::{oid::ObjectId, Document};
+use bson::oid::ObjectId;
 use serde::{Deserialize, Serialize};
 
 #[derive(Debug, Serialize, Deserialize)]
@@ -9,13 +9,13 @@ pub enum ActivityType {
     Special,
 }
 
-impl ActivityType {
-    pub fn as_str(&self) -> &'static str {
+impl ToString for ActivityType {
+    fn to_string(&self) -> String {
         match *self {
-            ActivityType::Specified => "specified",
-            ActivityType::Social => "social",
-            ActivityType::Scale => "scale",
-            ActivityType::Special => "special",
+            ActivityType::Specified => "specified".to_string(),
+            ActivityType::Social => "social".to_string(),
+            ActivityType::Scale => "scale".to_string(),
+            ActivityType::Special => "special".to_string(),
         }
     }
 }
@@ -27,12 +27,12 @@ pub enum ActivityStatus {
     Refused,
 }
 
-impl ActivityStatus {
-    pub fn as_str(&self) -> &'static str {
+impl ToString for ActivityStatus {
+    fn to_string(&self) -> String {
         match *self {
-            ActivityStatus::Effective => "effective",
-            ActivityStatus::Pending => "pending",
-            ActivityStatus::Refused => "refused",
+            ActivityStatus::Effective => "effective".to_string(),
+            ActivityStatus::Pending => "pending".to_string(),
+            ActivityStatus::Refused => "refused".to_string(),
         }
     }
 }
@@ -46,14 +46,14 @@ pub enum ActivityMemberStatus {
     Draft,
 }
 
-impl ActivityMemberStatus {
-    pub fn as_str(&self) -> &'static str {
+impl ToString for ActivityMemberStatus {
+    fn to_string(&self) -> String {
         match *self {
-            ActivityMemberStatus::Effective => "effective",
-            ActivityMemberStatus::Pending => "pending",
-            ActivityMemberStatus::Refused => "refused",
-            ActivityMemberStatus::Rejected => "rejected",
-            ActivityMemberStatus::Draft => "draft",
+            ActivityMemberStatus::Effective => "effective".to_string(),
+            ActivityMemberStatus::Pending => "pending".to_string(),
+            ActivityMemberStatus::Refused => "refused".to_string(),
+            ActivityMemberStatus::Rejected => "rejected".to_string(),
+            ActivityMemberStatus::Draft => "draft".to_string(),
         }
     }
 }
@@ -65,12 +65,12 @@ pub enum ActivityMode {
     SocialPractice,
 }
 
-impl ActivityMode {
-    pub fn as_str(&self) -> &'static str {
+impl ToString for ActivityMode {
+    fn to_string(&self) -> String {
         match *self {
-            ActivityMode::OnCampus => "on-campus",
-            ActivityMode::OffCampus => "off-campus",
-            ActivityMode::SocialPractice => "social-practice",
+            ActivityMode::OnCampus => "on-campus".to_string(),
+            ActivityMode::OffCampus => "off-campus".to_string(),
+            ActivityMode::SocialPractice => "social-practice".to_string(),
         }
     }
 }
@@ -111,4 +111,3 @@ pub struct Activity {
     pub status: ActivityStatus,
     pub members: Vec<ActivityMember>,
 }
-

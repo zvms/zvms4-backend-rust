@@ -12,16 +12,16 @@ pub enum GroupPermission {
     System,
 }
 
-impl GroupPermission {
-    pub fn as_str(&self) -> &'static str {
+impl ToString for GroupPermission {
+    fn to_string(&self) -> String {
         match *self {
-            GroupPermission::Student => "student",
-            GroupPermission::Secretary => "secretary",
-            GroupPermission::Department => "department",
-            GroupPermission::Auditor => "auditor",
-            GroupPermission::Inspector => "inspector",
-            GroupPermission::Admin => "admin",
-            GroupPermission::System => "system",
+            GroupPermission::Student => "student".to_string(),
+            GroupPermission::Secretary => "secretary".to_string(),
+            GroupPermission::Department => "department".to_string(),
+            GroupPermission::Auditor => "auditor".to_string(),
+            GroupPermission::Inspector => "inspector".to_string(),
+            GroupPermission::Admin => "admin".to_string(),
+            GroupPermission::System => "system".to_string(),
         }
     }
 }
@@ -33,12 +33,12 @@ pub enum GroupType {
     Group,
 }
 
-impl GroupType {
-    pub fn as_str(&self) -> &'static str {
+impl ToString for GroupType {
+    fn to_string(&self) -> String {
         match *self {
-            GroupType::Class => "class",
-            GroupType::Permission => "permission",
-            GroupType::Group => "group",
+            GroupType::Class => "class".to_string(),
+            GroupType::Permission => "permission".to_string(),
+            GroupType::Group => "group".to_string(),
         }
     }
 }

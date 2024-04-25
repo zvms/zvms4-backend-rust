@@ -1,12 +1,19 @@
-use crate::models::activities::Activity;
-use axum::{extract::Extension, response::Json};
+use crate::models::{
+    activities::Activity,
+    response::{ErrorResponse, Response as ZVMSResponse, ResponseStatus, SuccessResponse},
+};
+use axum::{
+    extract::Extension,
+    http::StatusCode,
+    response::{IntoResponse, Json},
+};
 use bson::{doc, from_document, oid::ObjectId};
 use futures::stream::StreamExt;
 use mongodb::{Collection, Database};
 use std::sync::Arc;
 use tokio::sync::Mutex;
 
-pub async fn read_all(Extension(db): Extension<Arc<Mutex<Database>>>) -> Json<Vec<Activity>> {
+pub async fn read_all(Extension(db): Extension<Arc<Mutex<Database>>>) -> impl IntoResponse {
     let db = db.lock().await;
     let collection = db.collection("activities");
     let cursor = collection.find(None, None).await.unwrap();
@@ -19,7 +26,28 @@ pub async fn read_all(Extension(db): Extension<Arc<Mutex<Database>>>) -> Json<Ve
         })
         .collect()
         .await;
-    Json(activities)
+    if activities.is_empty() {
+        let response = ErrorResponse {
+            status: ResponseStatus::Error,
+            code: 404,
+            message: "No activities found".to_string(),
+        }
+        .into();
+        let response = ZVMSResponse::<(), ()>::Error(response);
+        let response = serde_json::to_string(&response).unwrap();
+        (StatusCode::NOT_FOUND, Json(response))
+    } else {
+        let response: SuccessResponse<_, ()> = SuccessResponse {
+            status: ResponseStatus::Success,
+            code: 200,
+            data: activities,
+            metadata: None,
+        }
+        .into();
+        let response = ZVMSResponse::Success(response);
+        let response = serde_json::to_string(&response).unwrap();
+        (StatusCode::OK, Json(response))
+    }
 }
 
 pub async fn read_with_filter(
@@ -38,7 +66,7 @@ pub async fn read_with_filter(
 
     let mut cursor = match collection.aggregate(pipeline, None).await {
         Ok(c) => c,
-        Err(e) => return Json(vec![].into()),
+        Err(_) => return Json(vec![].into()),
     };
 
     let mut activities = Vec::new();
@@ -54,7 +82,6 @@ pub async fn read_with_filter(
 
     Json(activities)
 }
-
 
 pub async fn read_one(
     Extension(db): Extension<Arc<Mutex<Database>>>,

@@ -8,12 +8,12 @@ pub enum UserSex {
     Unknown,
 }
 
-impl UserSex {
-    pub fn as_str(&self) -> &'static str {
+impl ToString for UserSex {
+    fn to_string(&self) -> String {
         match *self {
-            UserSex::Male => "male",
-            UserSex::Female => "female",
-            UserSex::Unknown => "unknown",
+            UserSex::Male => "male".to_string(),
+            UserSex::Female => "female".to_string(),
+            UserSex::Unknown => "unknown".to_string(),
         }
     }
 }
