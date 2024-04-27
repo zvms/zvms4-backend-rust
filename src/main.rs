@@ -1,8 +1,8 @@
 mod config;
 mod database;
 mod models;
-mod utils;
 mod routers;
+mod utils;
 use axum::{routing::get, Extension, Router};
 use std::sync::Arc;
 use tokio::sync::Mutex;
@@ -12,12 +12,14 @@ async fn main() {
     let client = database::create_client()
         .await
         .expect("Failed to create client");
+
     let shared_client = Arc::new(Mutex::new(client));
 
-    println!("Server running on port 3000");
-
     // Set up the router
-    let app = Router::new().route("/activity/", get(routers::activities::read::read_one)).layer(Extension(shared_client));
+    let app = Router::new()
+        .route("/activity/:id", get(routers::activities::read::read_one))
+        .route("/activity/", get(routers::activities::read::read_all))
+        .layer(Extension(shared_client.clone()));
 
     // Run the server
     let listener = tokio::net::TcpListener::bind("0.0.0.0:3000").await.unwrap();

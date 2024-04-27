@@ -2,6 +2,7 @@ use bson::oid::ObjectId;
 use serde::{Deserialize, Serialize};
 
 #[derive(Debug, Serialize, Deserialize)]
+#[serde(rename_all = "kebab-case")]
 pub enum GroupPermission {
     Student,
     Secretary,
@@ -12,35 +13,12 @@ pub enum GroupPermission {
     System,
 }
 
-impl ToString for GroupPermission {
-    fn to_string(&self) -> String {
-        match *self {
-            GroupPermission::Student => "student".to_string(),
-            GroupPermission::Secretary => "secretary".to_string(),
-            GroupPermission::Department => "department".to_string(),
-            GroupPermission::Auditor => "auditor".to_string(),
-            GroupPermission::Inspector => "inspector".to_string(),
-            GroupPermission::Admin => "admin".to_string(),
-            GroupPermission::System => "system".to_string(),
-        }
-    }
-}
-
 #[derive(Debug, Serialize, Deserialize)]
+#[serde(rename_all = "kebab-case")]
 pub enum GroupType {
     Class,
     Permission,
     Group,
-}
-
-impl ToString for GroupType {
-    fn to_string(&self) -> String {
-        match *self {
-            GroupType::Class => "class".to_string(),
-            GroupType::Permission => "permission".to_string(),
-            GroupType::Group => "group".to_string(),
-        }
-    }
 }
 
 #[derive(Debug, Serialize, Deserialize)]

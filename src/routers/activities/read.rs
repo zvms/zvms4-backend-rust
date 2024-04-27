@@ -1,9 +1,10 @@
 use crate::models::{
     activities::Activity,
+    users::User,
     response::{ErrorResponse, Response as ZVMSResponse, ResponseStatus, SuccessResponse},
 };
 use axum::{
-    extract::Extension,
+    extract::{Extension, Path, Query},
     http::StatusCode,
     response::{IntoResponse, Json},
 };
@@ -50,12 +51,19 @@ pub async fn read_all(Extension(db): Extension<Arc<Mutex<Database>>>) -> impl In
     }
 }
 
+pub struct ReadActivityQuery {
+    page: Option<u32>,
+    perpage: Option<u32>,
+    query: Option<String>,
+}
+
 pub async fn read_with_filter(
     Extension(db): Extension<Arc<Mutex<Database>>>,
-    page: u32,
-    perpage: u32,
-    query: String,
+    Query(ReadActivityQuery { page, perpage, query }): Query<ReadActivityQuery>,
 ) -> Json<Vec<Activity>> {
+    let page = page.unwrap_or(1);
+    let perpage = perpage.unwrap_or(10);
+    let query = query.unwrap_or("".to_string());
     let db = db.lock().await;
     let collection = db.collection("activities") as Collection<Activity>;
     let pipeline = vec![
@@ -84,18 +92,54 @@ pub async fn read_with_filter(
 }
 
 pub async fn read_one(
-    Extension(db): Extension<Arc<Mutex<Database>>>,
-    id: String,
-) -> Result<Json<Activity>, String> {
-    let db = db.lock().await;
+    Extension(client): Extension<Arc<Mutex<Database>>>,
+    Path(id): Path<String>,
+) -> impl IntoResponse {
+    println!("ID: {:?}", id);
+    let db = client.lock().await;
     let collection = db.collection("activities");
-    let filter = doc! {"_id": ObjectId::parse_str(&id).unwrap()};
-    let result = collection.find_one(filter, None).await.unwrap();
+    let id = ObjectId::parse_str(&id);
+    if let Err(_) = id {
+        let response = ErrorResponse {
+            status: ResponseStatus::Error,
+            code: 400,
+            message: "Invalid ID".to_string(),
+        };
+        let response = serde_json::to_string(&response).unwrap();
+        return (StatusCode::BAD_REQUEST, Json(response));
+    }
+    let id = id.unwrap();
+    let filter = doc! {"_id": id};
+    let result = collection.find_one(filter, None).await;
+    if let Err(e) = result {
+        let response = ErrorResponse {
+            status: ResponseStatus::Error,
+            code: 500,
+            message: "Failed to read activity: ".to_string() + &e.to_string(),
+        };
+        let response = serde_json::to_string(&response).unwrap();
+        return (StatusCode::INTERNAL_SERVER_ERROR, Json(response));
+    }
+    let result: Option<Activity> = result.unwrap();
     match result {
         Some(document) => {
-            let activity = from_document(document).unwrap();
-            Ok(Json(activity))
+            let response: SuccessResponse<Activity, ()> = SuccessResponse {
+                status: ResponseStatus::Success,
+                code: 200,
+                data: document,
+                metadata: None,
+            };
+            let response = serde_json::to_string(&response).unwrap();
+            (StatusCode::OK, Json(response))
         }
-        None => Err("Activity not found".into()),
+        None => {
+            let response = ErrorResponse {
+                status: ResponseStatus::Error,
+                code: 404,
+                message: "Activity not found".to_string(),
+            };
+            let response = serde_json::to_string(&response).unwrap();
+            (StatusCode::NOT_FOUND, Json(response))
+        }
     }
 }

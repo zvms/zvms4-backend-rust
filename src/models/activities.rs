@@ -2,6 +2,7 @@ use bson::oid::ObjectId;
 use serde::{Deserialize, Serialize};
 
 #[derive(Debug, Serialize, Deserialize)]
+#[serde(rename_all = "kebab-case")]
 pub enum ActivityType {
     Specified,
     Social,
@@ -21,6 +22,7 @@ impl ToString for ActivityType {
 }
 
 #[derive(Debug, Serialize, Deserialize)]
+#[serde(rename_all = "kebab-case")]
 pub enum ActivityStatus {
     Effective,
     Pending,
@@ -38,6 +40,7 @@ impl ToString for ActivityStatus {
 }
 
 #[derive(Debug, Serialize, Deserialize)]
+#[serde(rename_all = "kebab-case")]
 pub enum ActivityMemberStatus {
     Effective,
     Pending,
@@ -59,6 +62,7 @@ impl ToString for ActivityMemberStatus {
 }
 
 #[derive(Debug, Serialize, Deserialize)]
+#[serde(rename_all = "kebab-case")]
 pub enum ActivityMode {
     OnCampus,
     OffCampus,
@@ -98,11 +102,12 @@ pub struct ActivityMemberHistory {
 
 #[derive(Debug, Serialize, Deserialize)]
 pub struct Activity {
+    #[serde(rename = "_id")]
     pub _id: ObjectId,
-    pub name: String,
-    pub description: String,
     #[serde(rename = "type")]
     pub activity_type: ActivityType,
+    pub name: String,
+    pub description: String,
     pub duration: i32,
     pub date: String,
     pub created_at: String,

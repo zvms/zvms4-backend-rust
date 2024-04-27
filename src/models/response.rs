@@ -1,25 +1,17 @@
 use serde::{Deserialize, Serialize};
 
 #[derive(Debug, Serialize, Deserialize)]
+#[serde(rename_all = "kebab-case")]
 pub enum ResponseStatus {
     Success,
     Error,
-}
-
-impl ToString for ResponseStatus {
-    fn to_string(&self) -> String {
-        match self {
-            ResponseStatus::Success => "success".to_string(),
-            ResponseStatus::Error => "error".to_string(),
-        }
-    }
 }
 
 #[derive(Debug, Serialize, Deserialize)]
 pub struct SuccessResponse<T, M> {
     pub status: ResponseStatus,
     pub code: i32,
-    pub data: Vec<T>,
+    pub data: T,
     pub metadata: Option<M>,
 }
 
@@ -37,7 +29,7 @@ pub enum Response<T, M> {
 }
 
 impl<T, M> Response<T, M> {
-    pub fn success(data: Vec<T>, metadata: Option<M>) -> Self {
+    pub fn success(data: T, metadata: Option<M>) -> Self {
         Response::Success(SuccessResponse {
             status: ResponseStatus::Success,
             code: 200,
