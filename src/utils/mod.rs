@@ -1,2 +1,2 @@
-pub mod verify;
+pub mod jwt;
 pub mod rsa;
