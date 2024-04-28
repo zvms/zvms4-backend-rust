@@ -3,7 +3,10 @@ mod database;
 mod models;
 mod routers;
 mod utils;
-use axum::{routing::get, Extension, Router};
+use axum::{
+    routing::{get, post},
+    Extension, Router,
+};
 use std::sync::Arc;
 use tokio::sync::Mutex;
 
@@ -19,6 +22,7 @@ async fn main() {
     let app = Router::new()
         .route("/activity/:id", get(routers::activities::read::read_one))
         .route("/activity/", get(routers::activities::read::read_all))
+        .route("/user/auth", post(routers::auth::login))
         .layer(Extension(shared_client.clone()));
 
     // Run the server
