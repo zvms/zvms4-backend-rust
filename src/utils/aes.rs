@@ -5,3 +5,13 @@ pub fn generate_aes256_key() -> String {
     OsRng.fill_bytes(&mut key);
     hex::encode(key)
 }
+
+pub fn read_aes256_key() -> String {
+    let key = std::fs::read_to_string("aes256.key");
+    if let Err(_) = key {
+        let key = generate_aes256_key();
+        let _ = std::fs::write("aes256.key", key.as_bytes());
+        return key;
+    }
+    key.unwrap()
+}

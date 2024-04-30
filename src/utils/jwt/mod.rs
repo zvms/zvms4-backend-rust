@@ -1,17 +1,18 @@
 use crate::models::groups::GroupPermission;
 use jsonwebtoken::{decode, encode, DecodingKey, EncodingKey, Header, Validation};
 use serde::{Deserialize, Serialize};
-use std::env;
+use crate::utils::aes::read_aes256_key;
 use std::time::{SystemTime, UNIX_EPOCH};
+pub mod valid;
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Debug, Serialize, Deserialize, Clone)]
 #[serde(rename_all = "kebab-case")]
 pub enum TokenType {
     LongTerm,
     ShortTerm,
 }
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Debug, Serialize, Deserialize, Clone)]
 pub struct Token {
     pub sub: String,
     pub exp: u64,
@@ -20,8 +21,11 @@ pub struct Token {
     pub perms: Vec<GroupPermission>,
 }
 
-pub trait TokenTrait {
-    fn verify_token(&self, token: &str) -> Result<Token, String>;
+#[derive(Debug, Serialize, Deserialize, Clone)]
+pub struct UserData {
+    pub id: String,
+    pub perms: Vec<GroupPermission>,
+    pub term: TokenType,
 }
 
 pub fn generate_token(sub: &str, term: TokenType, perms: Vec<GroupPermission>) -> String {
@@ -39,17 +43,17 @@ pub fn generate_token(sub: &str, term: TokenType, perms: Vec<GroupPermission>) -
         term,
         perms,
     };
-    let encoding_key = EncodingKey::from_secret(env::var("JWT_SECRET").unwrap().as_bytes());
+    let encoding_key = EncodingKey::from_secret(read_aes256_key().as_bytes());
     encode(&Header::default(), &token, &encoding_key).unwrap()
 }
 
-impl TokenTrait for Token {
-    fn verify_token(&self, token: &str) -> Result<Token, String> {
-        let decoding_key = DecodingKey::from_secret(env::var("JWT_SECRET").unwrap().as_bytes());
-        let validation = Validation::default();
-        match decode::<Token>(token, &decoding_key, &validation) {
-            Ok(token_data) => Ok(token_data.claims),
-            Err(_) => Err("Invalid token".to_string()),
-        }
+pub fn verify_token(token: String) -> Result<Token, String> {
+    let token = token.replace("Bearer ", "");
+    let token = token.as_str();
+    let decoding_key = DecodingKey::from_secret(read_aes256_key().as_bytes());
+    let validation = Validation::default();
+    match decode::<Token>(token, &decoding_key, &validation) {
+        Ok(token_data) => Ok(token_data.claims),
+        Err(_) => Err("Invalid token".to_string()),
     }
 }

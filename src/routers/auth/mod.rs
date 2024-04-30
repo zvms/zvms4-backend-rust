@@ -13,12 +13,13 @@ use axum::{
     http::StatusCode,
     response::{IntoResponse, Json},
 };
-use bson::doc;
+use bson::{doc, oid::ObjectId};
 use mongodb::Database;
 use serde::{Deserialize, Serialize};
 use serde_json::json;
 use std::sync::Arc;
 use tokio::sync::Mutex;
+use std::str::FromStr;
 
 #[derive(Debug, Serialize, Deserialize)]
 pub struct LoginRequest {
@@ -40,10 +41,30 @@ pub async fn login(
 ) -> impl IntoResponse {
     let client = client.lock().await;
     let collection = client.collection("users");
-    let user: Option<User> = collection
-        .find_one(Some(doc! {"id": body.userid}), None)
-        .await
-        .unwrap();
+    let id = ObjectId::from_str(&body.userid.as_str());
+    if let Err(_) = id {
+        let response = ErrorResponse {
+            status: ResponseStatus::Error,
+            code: 400,
+            message: "Invalid user id".to_string(),
+        };
+        let response = json!(response);
+        return (StatusCode::BAD_REQUEST, Json(response));
+    }
+    let id = id.unwrap();
+    let user = collection
+        .find_one(Some(doc! {"_id": id}), None)
+        .await;
+    if let Err(_) = user {
+        let response = ErrorResponse {
+            status: ResponseStatus::Error,
+            code: 500,
+            message: "Failed to find user".to_string(),
+        };
+        let response = json!(response);
+        return (StatusCode::INTERNAL_SERVER_ERROR, Json(response));
+    }
+    let user: Option<User> = user.unwrap();
     if let Some(user) = user {
         let keypair = load_keypair().await;
         let credentials = decrypt(&keypair.0, &body.credentials.as_bytes()).await;
@@ -60,7 +81,17 @@ pub async fn login(
         let credentials: LoginCredentials = credentials.unwrap();
         if user.clone().valid_password(credentials.password).await {
             let groups = client.collection("groups");
-            let token = user.generate_token(&collection, &groups, body.term).await.unwrap();
+            let token = user.generate_token(&collection, &groups, body.term).await;
+            if let Err(_) = token {
+                let response = ErrorResponse {
+                    status: ResponseStatus::Error,
+                    code: 500,
+                    message: "Failed to generate token".to_string(),
+                };
+                let response = json!(response);
+                return (StatusCode::INTERNAL_SERVER_ERROR, Json(response));
+            }
+            let token = token.unwrap();
             let response: SuccessResponse<String, ()> = SuccessResponse {
                 status: ResponseStatus::Success,
                 code: 200,

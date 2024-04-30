@@ -1,6 +1,5 @@
 use tokio::fs::{try_exists, write};
 use crate::utils::{rsa::{generate_keypair, save_keypair}, aes::generate_aes256_key};
-use rand::{RngCore, rngs::OsRng};
 
 pub async fn generate_rsa_keypair() {
     let private_exists = try_exists("private.pem").await.unwrap();

@@ -1,7 +1,7 @@
 use bson::oid::ObjectId;
 use serde::{Deserialize, Serialize};
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Debug, Serialize, Deserialize, Clone)]
 #[serde(rename_all = "kebab-case")]
 pub enum GroupPermission {
     Student,
@@ -13,7 +13,7 @@ pub enum GroupPermission {
     System,
 }
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Debug, Serialize, Deserialize, Clone)]
 #[serde(rename_all = "kebab-case")]
 pub enum GroupType {
     Class,
@@ -21,7 +21,7 @@ pub enum GroupType {
     Group,
 }
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Debug, Serialize, Deserialize, Clone)]
 pub struct Group {
     pub _id: ObjectId,
     pub name: String,

@@ -1,3 +1,4 @@
+extern crate chrono;
 mod config;
 mod database;
 mod models;
@@ -14,6 +15,8 @@ use launch::{generate_aes_key, generate_rsa_keypair};
 
 #[tokio::main]
 async fn main() {
+    tracing_subscriber::fmt::init();
+
     let client = database::create_client()
         .await
         .expect("Failed to create client");
@@ -30,6 +33,7 @@ async fn main() {
     let app = Router::new()
         .route("/activity/:id", get(routers::activities::read::read_one))
         .route("/activity/", get(routers::activities::read::read_all))
+        .route("/activity/", post(routers::activities::insert::insert_activity))
         .route("/user/auth", post(routers::auth::login))
         .layer(Extension(shared_client.clone()));
 

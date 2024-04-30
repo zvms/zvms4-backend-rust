@@ -1,7 +1,7 @@
 use bson::oid::ObjectId;
 use serde::{Deserialize, Serialize};
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Debug, Serialize, Deserialize, Clone)]
 #[serde(rename_all = "kebab-case")]
 pub enum ActivityType {
     Specified,
@@ -10,18 +10,7 @@ pub enum ActivityType {
     Special,
 }
 
-impl ToString for ActivityType {
-    fn to_string(&self) -> String {
-        match *self {
-            ActivityType::Specified => "specified".to_string(),
-            ActivityType::Social => "social".to_string(),
-            ActivityType::Scale => "scale".to_string(),
-            ActivityType::Special => "special".to_string(),
-        }
-    }
-}
-
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Debug, Serialize, Deserialize, Clone)]
 #[serde(rename_all = "kebab-case")]
 pub enum ActivityStatus {
     Effective,
@@ -29,17 +18,7 @@ pub enum ActivityStatus {
     Refused,
 }
 
-impl ToString for ActivityStatus {
-    fn to_string(&self) -> String {
-        match *self {
-            ActivityStatus::Effective => "effective".to_string(),
-            ActivityStatus::Pending => "pending".to_string(),
-            ActivityStatus::Refused => "refused".to_string(),
-        }
-    }
-}
-
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Debug, Serialize, Deserialize, Clone)]
 #[serde(rename_all = "kebab-case")]
 pub enum ActivityMemberStatus {
     Effective,
@@ -49,19 +28,7 @@ pub enum ActivityMemberStatus {
     Draft,
 }
 
-impl ToString for ActivityMemberStatus {
-    fn to_string(&self) -> String {
-        match *self {
-            ActivityMemberStatus::Effective => "effective".to_string(),
-            ActivityMemberStatus::Pending => "pending".to_string(),
-            ActivityMemberStatus::Refused => "refused".to_string(),
-            ActivityMemberStatus::Rejected => "rejected".to_string(),
-            ActivityMemberStatus::Draft => "draft".to_string(),
-        }
-    }
-}
-
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Debug, Serialize, Deserialize, Clone)]
 #[serde(rename_all = "kebab-case")]
 pub enum ActivityMode {
     OnCampus,
@@ -69,17 +36,7 @@ pub enum ActivityMode {
     SocialPractice,
 }
 
-impl ToString for ActivityMode {
-    fn to_string(&self) -> String {
-        match *self {
-            ActivityMode::OnCampus => "on-campus".to_string(),
-            ActivityMode::OffCampus => "off-campus".to_string(),
-            ActivityMode::SocialPractice => "social-practice".to_string(),
-        }
-    }
-}
-
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Debug, Serialize, Deserialize, Clone)]
 pub struct ActivityMember {
     pub _id: String, // ObjectId
     pub name: String,
@@ -91,7 +48,7 @@ pub struct ActivityMember {
     pub images: Vec<String>,
 }
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Debug, Serialize, Deserialize, Clone)]
 pub struct ActivityMemberHistory {
     pub impression: String,
     pub duration: f64,
@@ -100,7 +57,7 @@ pub struct ActivityMemberHistory {
     pub action: ActivityMemberStatus,
 }
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Debug, Serialize, Deserialize, Clone)]
 pub struct Activity {
     #[serde(rename = "_id")]
     pub _id: ObjectId,
