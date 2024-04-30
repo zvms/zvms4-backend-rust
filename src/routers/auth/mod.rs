@@ -3,7 +3,10 @@ use crate::{
         response::{ErrorResponse, ResponseStatus, SuccessResponse},
         users::{User, UserTrait},
     },
-    utils::rsa::{decrypt, load_keypair},
+    utils::{
+        jwt::TokenType,
+        rsa::{decrypt, load_keypair},
+    },
 };
 use axum::{
     extract::Extension,
@@ -21,6 +24,7 @@ use tokio::sync::Mutex;
 pub struct LoginRequest {
     pub credentials: String,
     pub userid: String,
+    pub term: TokenType,
 }
 
 #[derive(Debug, Serialize, Deserialize)]
@@ -32,6 +36,7 @@ pub struct LoginCredentials {
 pub async fn login(
     Extension(client): Extension<Arc<Mutex<Database>>>,
     Json(body): Json<LoginRequest>,
+
 ) -> impl IntoResponse {
     let client = client.lock().await;
     let collection = client.collection("users");
@@ -55,7 +60,7 @@ pub async fn login(
         let credentials: LoginCredentials = credentials.unwrap();
         if user.clone().valid_password(credentials.password).await {
             let groups = client.collection("groups");
-            let token = user.generate_token(&collection, &groups).await.unwrap();
+            let token = user.generate_token(&collection, &groups, body.term).await.unwrap();
             let response: SuccessResponse<String, ()> = SuccessResponse {
                 status: ResponseStatus::Success,
                 code: 200,

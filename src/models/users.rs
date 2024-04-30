@@ -1,16 +1,11 @@
 use crate::models::groups::{Group, GroupPermission};
 use crate::utils::jwt::{generate_token, TokenType};
-use axum::Extension;
 use bcrypt::{hash, verify};
 use bson::doc;
 use bson::oid::ObjectId;
 use mongodb::Collection;
 use serde::{Deserialize, Serialize};
 use std::str::FromStr;
-use std::sync::Arc;
-use tokio::sync::Mutex;
-
-use super::groups;
 
 #[derive(Debug, Serialize, Deserialize)]
 #[serde(rename_all = "kebab-case")]
@@ -36,6 +31,7 @@ pub trait UserTrait {
         &self,
         users: &Collection<User>,
         groups: &Collection<Group>,
+        term: TokenType,
     ) -> Result<String, String>;
 }
 
@@ -58,6 +54,7 @@ impl UserTrait for User {
         &self,
         users: &Collection<User>,
         groups_collection: &Collection<Group>,
+        term: TokenType,
     ) -> Result<String, String> {
         let user: Result<Option<User>, mongodb::error::Error> = users.find_one(None, None).await;
         match user {
@@ -86,7 +83,7 @@ impl UserTrait for User {
                     }
                 }
                 let token =
-                    generate_token(&user._id.to_string(), TokenType::ShortTerm, permissions);
+                    generate_token(&user._id.to_string(), term, permissions);
                 Ok(token)
             }
             Ok(None) => Err("User not found".to_string()),

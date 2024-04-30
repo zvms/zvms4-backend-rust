@@ -14,3 +14,7 @@ Cargo.lock
 *.pdb
 
 /src/config.rs
+
+aes.key
+private.pem
+public.pem

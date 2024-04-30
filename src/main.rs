@@ -3,12 +3,14 @@ mod database;
 mod models;
 mod routers;
 mod utils;
+mod launch;
 use axum::{
     routing::{get, post},
     Extension, Router,
 };
 use std::sync::Arc;
 use tokio::sync::Mutex;
+use launch::{generate_aes_key, generate_rsa_keypair};
 
 #[tokio::main]
 async fn main() {
@@ -17,6 +19,12 @@ async fn main() {
         .expect("Failed to create client");
 
     let shared_client = Arc::new(Mutex::new(client));
+
+    // Generate RSA keypair
+    generate_rsa_keypair().await;
+
+    // Generate AES key
+    generate_aes_key().await;
 
     // Set up the router
     let app = Router::new()
