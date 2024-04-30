@@ -11,7 +11,30 @@ use axum::{
 };
 use std::sync::Arc;
 use tokio::sync::Mutex;
+use serde_json::Value;
 use launch::{generate_aes_key, generate_rsa_keypair};
+use socketioxide::{
+    extract::{AckSender, Bin, Data, SocketRef},
+    SocketIo,
+};
+
+fn on_connect(socket: SocketRef, Data(data): Data<Value>) {
+    socket.emit("auth", data).ok();
+
+    socket.on(
+        "message",
+        |socket: SocketRef, Data::<Value>(data), Bin(bin)| {
+            socket.bin(bin).emit("message-back", data).ok();
+        },
+    );
+
+    socket.on(
+        "message-with-ack",
+        |Data::<Value>(data), ack: AckSender, Bin(bin)| {
+            ack.bin(bin).send(data).ok();
+        },
+    );
+}
 
 #[tokio::main]
 async fn main() {
@@ -22,6 +45,10 @@ async fn main() {
         .expect("Failed to create client");
 
     let shared_client = Arc::new(Mutex::new(client));
+
+    let (_, io) = SocketIo::new_layer();
+
+    io.ns("/", on_connect);
 
     // Generate RSA keypair
     generate_rsa_keypair().await;
