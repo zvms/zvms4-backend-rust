@@ -25,7 +25,7 @@ pub enum GroupType {
 pub struct Group {
     pub _id: ObjectId,
     pub name: String,
-    pub description: String,
+    pub description: Option<String>,
     pub permissions: Vec<GroupPermission>,
     #[serde(rename = "type")]
     pub group_type: GroupType,

@@ -39,13 +39,12 @@ pub enum ActivityMode {
 #[derive(Debug, Serialize, Deserialize, Clone)]
 pub struct ActivityMember {
     pub _id: String, // ObjectId
-    pub name: String,
     pub status: ActivityMemberStatus,
-    pub impression: String,
+    pub impression: Option<String>,
     pub duration: f64,
     pub mode: ActivityMode,
-    pub history: Vec<ActivityMemberHistory>,
-    pub images: Vec<String>,
+    pub history: Option<Vec<ActivityMemberHistory>>,
+    pub images: Option<Vec<String>>,
 }
 
 #[derive(Debug, Serialize, Deserialize, Clone)]
@@ -71,5 +70,5 @@ pub struct Activity {
     pub updated_at: String,
     pub creator: String, // ObjectId
     pub status: ActivityStatus,
-    pub members: Vec<ActivityMember>,
+    pub members: Option<Vec<ActivityMember>>,
 }

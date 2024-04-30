@@ -18,7 +18,7 @@ pub struct Notification {
     #[serde(rename = "type")]
     pub notification_type: NotificationType,
     pub publisher: ObjectId,
-    pub receivers: Vec<ObjectId>,
+    pub receivers: Option<Vec<ObjectId>>,
     pub anoymous: bool,
     pub global: bool,
     pub expire: u64,

@@ -6,7 +6,7 @@ mod routers;
 mod utils;
 mod launch;
 use axum::{
-    routing::{get, post},
+    routing::{delete, get, post},
     Extension, Router,
 };
 use std::sync::Arc;
@@ -59,6 +59,7 @@ async fn main() {
     // Set up the router
     let app = Router::new()
         .route("/activity/:id", get(routers::activities::read::read_one))
+        .route("/activity/:id", delete(routers::activities::remove::remove_activity))
         .route("/activity/", get(routers::activities::read::read_all))
         .route("/activity/", post(routers::activities::insert::insert_activity))
         .route("/user/auth", post(routers::auth::login))
