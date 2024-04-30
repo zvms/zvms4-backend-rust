@@ -1,5 +1,4 @@
 extern crate chrono;
-mod config;
 mod database;
 mod models;
 mod routers;
