@@ -94,7 +94,7 @@ pub struct Activity {
     pub category: Option<SpecialActivityCategory>,
 }
 
-fn datetime_or_u64<'de, D>(deserializer: D) -> Result<u64, D::Error>
+pub fn datetime_or_u64<'de, D>(deserializer: D) -> Result<u64, D::Error>
 where
     D: Deserializer<'de>,
 {
@@ -112,6 +112,13 @@ where
             E: de::Error,
         {
             Ok(value)
+        }
+
+        fn visit_i64<E>(self, value: i64) -> Result<Self::Value, E>
+        where
+            E: de::Error,
+        {
+            Ok(value as u64)
         }
 
         fn visit_str<E>(self, value: &str) -> Result<Self::Value, E>

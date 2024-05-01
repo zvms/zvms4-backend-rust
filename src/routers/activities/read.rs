@@ -107,6 +107,7 @@ pub async fn read_all(
 
 pub async fn read_one(
     Extension(client): Extension<Arc<Mutex<Database>>>,
+    _: UserData,
     Path(id): Path<String>,
 ) -> impl IntoResponse {
     println!("ID: {:?}", id);
@@ -126,6 +127,7 @@ pub async fn read_one(
     let filter = doc! {"_id": id};
     let result = collection.find_one(filter, None).await;
     if let Err(e) = result {
+        println!("Failed to read activity: {:?}", e);
         let response = ErrorResponse {
             status: ResponseStatus::Error,
             code: 500,
@@ -137,6 +139,7 @@ pub async fn read_one(
     let result: Option<Activity> = result.unwrap();
     match result {
         Some(document) => {
+            println!("{:?}", document);
             let response: SuccessResponse<Activity, ()> = SuccessResponse {
                 status: ResponseStatus::Success,
                 code: 200,
@@ -147,6 +150,7 @@ pub async fn read_one(
             (StatusCode::OK, Json(response))
         }
         None => {
+            println!("Activity not found");
             let response = ErrorResponse {
                 status: ResponseStatus::Error,
                 code: 404,

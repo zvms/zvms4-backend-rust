@@ -1,22 +1,22 @@
 extern crate chrono;
 mod database;
+mod launch;
 mod models;
 mod routers;
-mod utils;
-mod launch;
 mod tests;
+mod utils;
 use axum::{
-    routing::{delete, get, post},
+    routing::{delete, get, post, put},
     Extension, Router,
 };
-use std::sync::Arc;
-use tokio::sync::Mutex;
-use serde_json::Value;
 use launch::{generate_aes_key, generate_rsa_keypair};
+use serde_json::Value;
 use socketioxide::{
     extract::{AckSender, Bin, Data, SocketRef},
     SocketIo,
 };
+use std::sync::Arc;
+use tokio::sync::Mutex;
 
 fn on_connect(socket: SocketRef, Data(data): Data<Value>) {
     socket.emit("auth", data).ok();
@@ -58,10 +58,24 @@ async fn main() {
 
     // Set up the router
     let app = Router::new()
-        .route("/activity/:id", get(routers::activities::read::read_one))
-        .route("/activity/:id", delete(routers::activities::remove::remove_activity))
         .route("/activity/", get(routers::activities::read::read_all))
-        .route("/activity/", post(routers::activities::insert::insert_activity))
+        .route(
+            "/activity/",
+            post(routers::activities::insert::insert_activity),
+        )
+        .route("/activity/:id", get(routers::activities::read::read_one))
+        .route(
+            "/activity/:id/name",
+            put(routers::activities::update::update_activity_name),
+        )
+        .route(
+            "/activity/:id/description",
+            put(routers::activities::update::update_activity_description),
+        )
+        .route(
+            "/activity/:id",
+            delete(routers::activities::remove::remove_activity),
+        )
         .route("/user/auth", post(routers::auth::login))
         .layer(Extension(shared_client.clone()));
 

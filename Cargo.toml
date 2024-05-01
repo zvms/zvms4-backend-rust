@@ -14,6 +14,7 @@ b2-client = { version = "0.1.3", features = ["with_surf"] }
 base64 = "0.22.0"
 bcrypt = "0.15.1"
 bson = "2.10.0"
+bytes = { version = "1.6.0", features = ["serde"] }
 chrono = { version = "0.4.38", features = ["serde"] }
 futures = "0.3.30"
 hex = { version = "0.4.3", features = ["serde"] }
@@ -40,9 +41,3 @@ lto = true
 strip = true
 opt-level = 3
 codegen-units = 1
-
-[target.x86_64-unknown-linux-gnu]
-linker = "x86_64-linux-musl-gcc"
-
-[target.x86_64-pc-windows-gnu]
-linker = "x86_64-w64-mingw32-gcc"

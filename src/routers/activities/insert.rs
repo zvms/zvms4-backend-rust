@@ -2,7 +2,7 @@ use crate::{models::{
     activities::{Activity, ActivityStatus, ActivityType}, groups::GroupPermission, response::{ErrorResponse, ResponseStatus, SuccessResponse}
 }, utils::jwt::UserData};
 use axum::{
-    extract::Extension,
+    extract::{Extension, Path, Query},
     http::StatusCode,
     response::{IntoResponse, Json},
 };
@@ -14,8 +14,10 @@ use tokio::sync::Mutex;
 pub async fn insert_activity(
     Extension(db): Extension<Arc<Mutex<Database>>>,
     user: UserData,
+    Query(renew_object_id): Query<Option<bool>>,
     Json(mut activity): Json<Activity>,
 ) -> impl IntoResponse {
+    let renew_object_id = renew_object_id.unwrap_or(true);
     let db = db.lock().await;
     let collection = db.collection("activities");
     if user.perms.contains(&GroupPermission::Admin) {
@@ -55,7 +57,9 @@ pub async fn insert_activity(
     }
     // Remove the _id field if it exists
     let mut activity = activity;
-    activity._id = ObjectId::new();
+    if renew_object_id {
+        activity._id = ObjectId::new();
+    }
     let activity = bson::to_document(&activity);
     if let Ok(activity) = activity {
         if let Ok(_) = collection.insert_one(activity, None).await {
