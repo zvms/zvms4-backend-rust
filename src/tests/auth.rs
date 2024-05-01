@@ -50,6 +50,7 @@ mod tests {
         ];
         let token = generate_token(sub.as_str(), TokenType::LongTerm, perms.clone());
         let token = token.as_str();
+        println!("Token: {:?}", token);
         let result = verify_token(token.to_string());
         if let Err(_) = result {
             assert!(false);

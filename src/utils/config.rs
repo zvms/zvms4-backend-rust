@@ -7,6 +7,8 @@ use tokio::fs::{read, write};
 pub struct Config {
     pub server: String,
     pub database: String,
+    pub timezone: String,
+    pub port: u16,
 }
 
 pub async fn load_config() -> Result<Config, Box<dyn std::error::Error>> {
@@ -26,6 +28,8 @@ pub async fn init_config() -> Result<(), Box<dyn std::error::Error>> {
     let config = Config {
         server: url,
         database: "zvms".to_string(),
+        timezone: "0".to_string(),
+        port: 8080,
     };
     save_config(config).await?;
     Ok(())
@@ -40,4 +44,14 @@ pub async fn load_or_init_config() -> Result<Config, Box<dyn std::error::Error>>
             load_config().await
         }
     }
+}
+
+pub fn load_config_sync() -> Result<Config, Box<dyn std::error::Error>> {
+    let config = std::fs::read("config.json");
+    if let Err(_) = config {
+        return Err("Failed to read config file".into());
+    }
+    let config = config.unwrap();
+    let config: Config = serde_json::from_slice(&config)?;
+    Ok(config)
 }

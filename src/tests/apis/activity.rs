@@ -53,7 +53,6 @@ mod tests {
             ),
             creator: ObjectId::from_str("65e6fa210edc81d012ec45e3").unwrap(),
             status: ActivityStatus::Pending,
-            duration: Some(1.0),
             date: SystemTime::now()
                 .duration_since(SystemTime::UNIX_EPOCH)
                 .unwrap()

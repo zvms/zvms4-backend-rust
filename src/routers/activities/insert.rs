@@ -2,7 +2,7 @@ use crate::{models::{
     activities::{Activity, ActivityStatus, ActivityType}, groups::GroupPermission, response::{ErrorResponse, ResponseStatus, SuccessResponse}
 }, utils::jwt::UserData};
 use axum::{
-    extract::{Extension, Path, Query},
+    extract::{Extension, Query},
     http::StatusCode,
     response::{IntoResponse, Json},
 };
