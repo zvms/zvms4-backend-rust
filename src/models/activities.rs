@@ -1,7 +1,7 @@
 use bson::oid::ObjectId;
 use serde::{Deserialize, Serialize};
 
-#[derive(Debug, Serialize, Deserialize, Clone)]
+#[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
 #[serde(rename_all = "kebab-case")]
 pub enum ActivityType {
     Specified,
@@ -10,7 +10,7 @@ pub enum ActivityType {
     Special,
 }
 
-#[derive(Debug, Serialize, Deserialize, Clone)]
+#[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
 #[serde(rename_all = "kebab-case")]
 pub enum ActivityStatus {
     Effective,
@@ -18,7 +18,7 @@ pub enum ActivityStatus {
     Refused,
 }
 
-#[derive(Debug, Serialize, Deserialize, Clone)]
+#[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
 #[serde(rename_all = "kebab-case")]
 pub enum ActivityMemberStatus {
     Effective,
@@ -28,7 +28,7 @@ pub enum ActivityMemberStatus {
     Draft,
 }
 
-#[derive(Debug, Serialize, Deserialize, Clone)]
+#[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
 #[serde(rename_all = "kebab-case")]
 pub enum ActivityMode {
     OnCampus,
@@ -36,7 +36,7 @@ pub enum ActivityMode {
     SocialPractice,
 }
 
-#[derive(Debug, Serialize, Deserialize, Clone)]
+#[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
 pub struct ActivityMember {
     pub _id: String, // ObjectId
     pub status: ActivityMemberStatus,
@@ -47,7 +47,7 @@ pub struct ActivityMember {
     pub images: Option<Vec<String>>,
 }
 
-#[derive(Debug, Serialize, Deserialize, Clone)]
+#[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
 pub struct ActivityMemberHistory {
     pub impression: String,
     pub duration: f64,
@@ -56,7 +56,7 @@ pub struct ActivityMemberHistory {
     pub action: ActivityMemberStatus,
 }
 
-#[derive(Debug, Serialize, Deserialize, Clone)]
+#[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
 pub struct Activity {
     #[serde(rename = "_id")]
     pub _id: ObjectId,

@@ -5,14 +5,14 @@ use crate::utils::aes::read_aes256_key;
 use std::time::{SystemTime, UNIX_EPOCH};
 pub mod valid;
 
-#[derive(Debug, Serialize, Deserialize, Clone)]
+#[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
 #[serde(rename_all = "kebab-case")]
 pub enum TokenType {
     LongTerm,
     ShortTerm,
 }
 
-#[derive(Debug, Serialize, Deserialize, Clone)]
+#[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
 pub struct Token {
     pub sub: String,
     pub exp: u64,
@@ -21,7 +21,7 @@ pub struct Token {
     pub perms: Vec<GroupPermission>,
 }
 
-#[derive(Debug, Serialize, Deserialize, Clone)]
+#[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
 pub struct UserData {
     pub id: String,
     pub perms: Vec<GroupPermission>,

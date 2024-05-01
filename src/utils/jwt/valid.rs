@@ -10,8 +10,6 @@ use axum_extra::{headers::{authorization::Bearer, Authorization}, TypedHeader};
 use serde::{Serialize, Deserialize};
 use crate::models::response::{ErrorResponse, ResponseStatus};
 
-struct JwtAuth(UserData);
-
 #[derive(Debug, Serialize, Deserialize, Clone)]
 pub enum AuthenticationError {
     InvalidToken,
@@ -37,7 +35,7 @@ impl IntoResponse for AuthenticationError {
 }
 
 #[async_trait]
-impl<S> FromRequestParts<S> for JwtAuth
+impl<S> FromRequestParts<S> for UserData
 where
     S: Send + Sync + 'static,
 {
@@ -54,7 +52,7 @@ where
                     perms: token.perms,
                     term: token.term,
                 };
-                Ok(JwtAuth(data))
+                Ok(data)
             } else {
                 return Err(AuthenticationError::InvalidToken)
             }

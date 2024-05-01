@@ -1,6 +1,10 @@
-use crate::models::{
-    activities::Activity,
-    response::{ErrorResponse, Response as ZVMSResponse, ResponseStatus, SuccessResponse},
+use crate::{
+    models::{
+        activities::Activity,
+        groups::GroupPermission,
+        response::{ErrorResponse, Response as ZVMSResponse, ResponseStatus, SuccessResponse},
+    },
+    utils::jwt::UserData,
 };
 use axum::{
     extract::{Extension, Path, Query},
@@ -10,9 +14,9 @@ use axum::{
 use bson::{doc, from_document, oid::ObjectId};
 use futures::stream::TryStreamExt;
 use mongodb::{Collection, Database};
+use serde::{Deserialize, Serialize};
 use std::sync::Arc;
 use tokio::sync::Mutex;
-use serde::{Deserialize, Serialize};
 
 #[derive(Debug, Serialize, Deserialize)]
 pub struct ReadActivityQuery {
@@ -23,12 +27,27 @@ pub struct ReadActivityQuery {
 
 pub async fn read_all(
     Extension(db): Extension<Arc<Mutex<Database>>>,
+    user: UserData,
     Query(ReadActivityQuery {
         page,
         perpage,
         query,
     }): Query<ReadActivityQuery>,
 ) -> impl IntoResponse {
+    if user.perms.contains(&GroupPermission::Department)
+        || user.perms.contains(&GroupPermission::Admin)
+        || user.perms.contains(&GroupPermission::Auditor)
+    {
+    } else {
+        let response: ErrorResponse = ErrorResponse {
+            status: ResponseStatus::Error,
+            code: 403,
+            message: "Permission denied".to_string(),
+        }
+        .into();
+        let response = serde_json::to_string(&response).unwrap();
+        return (StatusCode::FORBIDDEN, Json(response));
+    }
     let page = page.unwrap_or(1);
     let perpage = perpage.unwrap_or(10);
     let query = query.unwrap_or("".to_string());

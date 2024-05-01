@@ -1,7 +1,6 @@
-use crate::models::{
-    activities::Activity,
-    response::{ErrorResponse, ResponseStatus, SuccessResponse},
-};
+use crate::{models::{
+    activities::{Activity, ActivityStatus, ActivityType}, groups::GroupPermission, response::{ErrorResponse, ResponseStatus, SuccessResponse}
+}, utils::jwt::UserData};
 use axum::{
     extract::Extension,
     http::StatusCode,
@@ -14,10 +13,46 @@ use tokio::sync::Mutex;
 
 pub async fn insert_activity(
     Extension(db): Extension<Arc<Mutex<Database>>>,
-    Json(activity): Json<Activity>,
+    user: UserData,
+    Json(mut activity): Json<Activity>,
 ) -> impl IntoResponse {
     let db = db.lock().await;
     let collection = db.collection("activities");
+    if user.perms.contains(&GroupPermission::Admin) {
+        activity.status = ActivityStatus::Effective;
+    } else if user.perms.contains(&GroupPermission::Department) {
+        if activity.activity_type == ActivityType::Special {
+            activity.status = ActivityStatus::Pending;
+        } else {
+            activity.status = ActivityStatus::Effective;
+        }
+    } else if user.perms.contains(&GroupPermission::Secretary) {
+        if activity.activity_type == ActivityType::Specified {
+            activity.status = ActivityStatus::Pending;
+        } else if activity.activity_type != ActivityType::Special {
+            activity.status = ActivityStatus::Effective;
+        } else {
+            let response = ErrorResponse {
+                status: ResponseStatus::Error,
+                code: 403,
+                message: "Permission denied".to_string(),
+            };
+            let response = serde_json::to_string(&response).unwrap();
+            return (StatusCode::FORBIDDEN, Json(response));
+        }
+    } else {
+        if activity.activity_type == ActivityType::Social || activity.activity_type == ActivityType::Scale {
+            activity.status = ActivityStatus::Pending;
+        } else {
+            let response = ErrorResponse {
+                status: ResponseStatus::Error,
+                code: 403,
+                message: "Permission denied".to_string(),
+            };
+            let response = serde_json::to_string(&response).unwrap();
+            return (StatusCode::FORBIDDEN, Json(response));
+        }
+    }
     // Remove the _id field if it exists
     let mut activity = activity;
     activity._id = ObjectId::new();
