@@ -77,6 +77,10 @@ async fn main() {
             put(routers::activities::update::update_activity_description),
         )
         .route(
+            "/activity/:id/member/:member_id",
+            get(routers::activities::members::read::read_member)
+        )
+        .route(
             "/activity/:id/member",
             post(routers::activities::members::insert::insert_member_into_activity),
         )

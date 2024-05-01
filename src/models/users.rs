@@ -21,7 +21,7 @@ pub struct User {
     pub _id: ObjectId,
     pub id: String,
     pub name: String,
-    pub group: Vec<String>,
+    pub group: Vec<ObjectId>,
     password: String,
 }
 
@@ -63,7 +63,7 @@ impl UserTrait for User {
                 let groups = user.group;
                 let mut permissions: Vec<GroupPermission> = vec![];
                 for group in groups {
-                    let id = ObjectId::from_str(group.as_str());
+                    let id = ObjectId::from_str(group.to_hex().as_str());
                     if let Err(_) = id {
                         return Err("Invalid group".to_string());
                     }
