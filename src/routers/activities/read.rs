@@ -53,7 +53,9 @@ pub async fn read_all(
     let query = query.unwrap_or("".to_string());
     let db = db.lock().await;
     let collection: Collection<Activity> = db.collection("activities");
-    let target = if user.perms.contains(&GroupPermission::Auditor) || user.perms.contains(&GroupPermission::Admin) {
+    let target = if user.perms.contains(&GroupPermission::Auditor)
+        || user.perms.contains(&GroupPermission::Admin)
+    {
         "pending"
     } else {
         ""
@@ -129,24 +131,14 @@ pub async fn read_all(
             break;
         }
     }
-    if activities.is_empty() {
-        let response = ErrorResponse {
-            status: ResponseStatus::Error,
-            code: 404,
-            message: "No activities found".to_string(),
-        };
-        let response = serde_json::to_string(&response).unwrap();
-        (StatusCode::NOT_FOUND, Json(response))
-    } else {
-        let response: SuccessResponse<_, ()> = SuccessResponse {
-            status: ResponseStatus::Success,
-            code: 200,
-            data: activities,
-            metadata: None,
-        };
-        let response = serde_json::to_string(&response).unwrap();
-        (StatusCode::OK, Json(response))
-    }
+    let response: SuccessResponse<_, ()> = SuccessResponse {
+        status: ResponseStatus::Success,
+        code: 200,
+        data: activities,
+        metadata: None,
+    };
+    let response = serde_json::to_string(&response).unwrap();
+    (StatusCode::OK, Json(response))
 }
 
 pub async fn read_one(

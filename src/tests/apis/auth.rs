@@ -6,16 +6,17 @@ ObjectId: 65e6fa210edc81d012ec483a
 
 #[cfg(test)]
 mod tests {
-    use crate::database::create_client;
-    use crate::launch::generate_rsa_keypair;
-    use crate::routers::auth::{login, LoginCredentials, LoginRequest};
-    use crate::utils::jwt::TokenType;
-    use crate::utils::rsa::{encrypt, load_keypair};
-    use axum::extract::Extension;
-    use axum::response::IntoResponse;
-    use axum::Json;
-    use std::sync::Arc;
-    use std::time::SystemTime;
+    use crate::{
+        database::create_client,
+        launch::generate_rsa_keypair,
+        routers::auth::{login, LoginCredentials, LoginRequest},
+        utils::{
+            jwt::TokenType,
+            rsa::{encrypt, load_keypair},
+        },
+    };
+    use axum::{extract::Extension, response::IntoResponse, Json};
+    use std::{sync::Arc, time::SystemTime};
     use tokio::sync::Mutex;
 
     #[tokio::test]
@@ -38,7 +39,7 @@ mod tests {
         let request = LoginRequest {
             credentials: credential,
             userid: "65e6fa210edc81d012ec483a".to_string(),
-            term: TokenType::LongTerm
+            term: TokenType::LongTerm,
         };
         let result = login(client, Json(request)).await;
         let result = result.into_response();

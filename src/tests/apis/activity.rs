@@ -13,6 +13,7 @@ mod tests {
     use bson::oid::ObjectId;
     use std::{str::FromStr, sync::Arc, time::SystemTime};
     use tokio::sync::Mutex;
+
     #[tokio::test]
     async fn get_activities() {
         let id = ObjectId::new().to_hex();
