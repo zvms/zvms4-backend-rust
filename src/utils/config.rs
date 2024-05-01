@@ -1,3 +1,5 @@
+use std::env;
+
 use serde::{Deserialize, Serialize};
 use tokio::fs::{read, write};
 
@@ -20,8 +22,9 @@ pub async fn save_config(config: Config) -> Result<(), Box<dyn std::error::Error
 }
 
 pub async fn init_config() -> Result<(), Box<dyn std::error::Error>> {
+    let url = env::var("DATABASE_URL").unwrap_or("mongodb://localhost:27017".to_string());
     let config = Config {
-        server: "mongodb://localhost:27017".to_string(),
+        server: url,
         database: "zvms".to_string(),
     };
     save_config(config).await?;

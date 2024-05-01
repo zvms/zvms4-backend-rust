@@ -19,3 +19,4 @@ aes.key
 private.pem
 public.pem
 config.json
+aes256.key
