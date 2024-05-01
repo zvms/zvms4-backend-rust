@@ -37,7 +37,6 @@ pub struct LoginCredentials {
 pub async fn login(
     Extension(client): Extension<Arc<Mutex<Database>>>,
     Json(body): Json<LoginRequest>,
-
 ) -> impl IntoResponse {
     let client = client.lock().await;
     let collection = client.collection("users");
@@ -67,7 +66,18 @@ pub async fn login(
     let user: Option<User> = user.unwrap();
     if let Some(user) = user {
         let keypair = load_keypair().await;
-        let credentials = decrypt(&keypair.0, &body.credentials.as_bytes()).await;
+        let credentials = hex::decode(&body.credentials);
+        if let Err(_) = credentials {
+            let response = ErrorResponse {
+                status: ResponseStatus::Error,
+                code: 400,
+                message: "Invalid credentials".to_string(),
+            };
+            let response = json!(response);
+            return (StatusCode::BAD_REQUEST, Json(response));
+        }
+        let credentials = credentials.unwrap();
+        let credentials = decrypt(&keypair.0, &credentials).await;
         let credentials = serde_json::from_str(&credentials);
         if let Err(_) = credentials {
             let response = ErrorResponse {
@@ -92,6 +102,7 @@ pub async fn login(
                 return (StatusCode::INTERNAL_SERVER_ERROR, Json(response));
             }
             let token = token.unwrap();
+            println!("{:?}", token.clone());
             let response: SuccessResponse<String, ()> = SuccessResponse {
                 status: ResponseStatus::Success,
                 code: 200,

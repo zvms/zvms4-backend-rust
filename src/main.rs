@@ -38,7 +38,7 @@ fn on_connect(socket: SocketRef, Data(data): Data<Value>) {
 
 #[tokio::main]
 async fn main() {
-    tracing_subscriber::fmt::init();
+    tracing_subscriber::fmt().init();
 
     let client = database::create_client()
         .await
@@ -65,6 +65,10 @@ async fn main() {
         )
         .route("/activity/:id", get(routers::activities::read::read_one))
         .route(
+            "/activity/:id",
+            delete(routers::activities::remove::remove_activity),
+        )
+        .route(
             "/activity/:id/name",
             put(routers::activities::update::update_activity_name),
         )
@@ -73,8 +77,8 @@ async fn main() {
             put(routers::activities::update::update_activity_description),
         )
         .route(
-            "/activity/:id",
-            delete(routers::activities::remove::remove_activity),
+            "/activity/:id/member",
+            post(routers::activities::members::insert::insert_member_into_activity),
         )
         .route("/user/auth", post(routers::auth::login))
         .layer(Extension(shared_client.clone()));
