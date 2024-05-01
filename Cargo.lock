@@ -406,40 +406,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "backend_rust"
-version = "0.1.0"
-dependencies = [
- "aes 0.8.4",
- "axum",
- "axum-core",
- "axum-extra",
- "b2-client",
- "base64 0.22.1",
- "bcrypt",
- "bson",
- "chrono",
- "futures",
- "hex",
- "jsonwebtoken",
- "mongodb",
- "once_cell",
- "pem",
- "rand 0.8.5",
- "reqwest",
- "rsa",
- "serde",
- "serde_json",
- "serde_qs 0.13.0",
- "socketioxide",
- "tokio",
- "tower",
- "tower-http",
- "tracing-subscriber",
- "uuid",
- "zerocopy",
-]
-
-[[package]]
 name = "backtrace"
 version = "0.3.71"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -4151,3 +4117,37 @@ name = "zeroize"
 version = "1.7.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "525b4ec142c6b68a2d10f01f7bbf6755599ca3f81ea53b8431b7dd348f5fdb2d"
+
+[[package]]
+name = "zvms_backend"
+version = "0.1.0"
+dependencies = [
+ "aes 0.8.4",
+ "axum",
+ "axum-core",
+ "axum-extra",
+ "b2-client",
+ "base64 0.22.1",
+ "bcrypt",
+ "bson",
+ "chrono",
+ "futures",
+ "hex",
+ "jsonwebtoken",
+ "mongodb",
+ "once_cell",
+ "pem",
+ "rand 0.8.5",
+ "reqwest",
+ "rsa",
+ "serde",
+ "serde_json",
+ "serde_qs 0.13.0",
+ "socketioxide",
+ "tokio",
+ "tower",
+ "tower-http",
+ "tracing-subscriber",
+ "uuid",
+ "zerocopy",
+]

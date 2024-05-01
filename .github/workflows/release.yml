@@ -13,12 +13,16 @@ on:
 
 jobs:
   build_and_release:
-    name: Build and Release
-    runs-on: [ubuntu-latest, macos-latest, windows-latest]
+    name: Build and Release on ${{ matrix.os }}
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: [ubuntu-latest, macos-latest, windows-latest]
+
 
     steps:
     - name: Checkout code
-      uses: actions/checkout@v3
+      uses: actions/checkout@v4
 
     - name: Set up Rust
       uses: actions-rs/toolchain@v1
@@ -35,7 +39,7 @@ jobs:
 
     - name: Rename binary
       run: |
-        mv target/release/myapp target/release/myapp-${{ steps.vars.outputs.version }}
+        mv target/release/zvms_backend target/release/zvms_backend-${{ matrix.os }}-${{ steps.vars.outputs.version }}
 
     - name: Create release
       id: create_release
@@ -54,6 +58,6 @@ jobs:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       with:
         upload_url: ${{ steps.create_release.outputs.upload_url }}
-        asset_path: ./target/release/myapp-${{ steps.vars.outputs.version }}
-        asset_name: myapp-${{ steps.vars.outputs.version }}
+        asset_path: ./target/release/zvms_backend-${{ matrix.os }}-${{ steps.vars.outputs.version }}
+        asset_name: zvms_backend-${{ steps.vars.outputs.version }}
         asset_content_type: application/octet-stream
