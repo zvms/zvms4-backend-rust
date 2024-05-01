@@ -7,7 +7,7 @@ use mongodb::Collection;
 use serde::{Deserialize, Serialize};
 use std::str::FromStr;
 
-#[derive(Debug, Serialize, Deserialize, Clone)]
+#[derive(Debug, Serialize, Deserialize, Clone, Eq, PartialEq, Hash)]
 #[serde(rename_all = "kebab-case")]
 pub enum UserSex {
     Male,
@@ -15,7 +15,7 @@ pub enum UserSex {
     Unknown,
 }
 
-#[derive(Debug, Serialize, Deserialize, Clone)]
+#[derive(Debug, Serialize, Deserialize, Clone, Eq, PartialEq, Hash)]
 pub struct User {
     pub _id: ObjectId,
     pub id: String,

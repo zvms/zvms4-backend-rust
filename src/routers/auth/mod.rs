@@ -21,14 +21,14 @@ use std::sync::Arc;
 use tokio::sync::Mutex;
 use std::str::FromStr;
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Debug, Serialize, Deserialize, PartialEq, Eq)]
 pub struct LoginRequest {
     pub credentials: String,
     pub userid: String,
     pub term: TokenType,
 }
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Debug, Serialize, Deserialize, PartialEq, Eq)]
 pub struct LoginCredentials {
     pub password: String,
     pub timestamp: u64,

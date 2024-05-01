@@ -1,7 +1,7 @@
 use bson::oid::ObjectId;
 use serde::{Deserialize, Serialize};
 
-#[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
+#[derive(Debug, Serialize, Deserialize, Clone, PartialEq, Eq, Hash)]
 #[serde(rename_all = "kebab-case")]
 pub enum ActivityType {
     Specified,
@@ -10,7 +10,7 @@ pub enum ActivityType {
     Special,
 }
 
-#[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
+#[derive(Debug, Serialize, Deserialize, Clone, PartialEq, Eq, Hash)]
 #[serde(rename_all = "kebab-case")]
 pub enum ActivityStatus {
     Effective,
@@ -18,7 +18,7 @@ pub enum ActivityStatus {
     Refused,
 }
 
-#[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
+#[derive(Debug, Serialize, Deserialize, Clone, PartialEq, Eq, Hash)]
 #[serde(rename_all = "kebab-case")]
 pub enum ActivityMemberStatus {
     Effective,
@@ -28,7 +28,7 @@ pub enum ActivityMemberStatus {
     Draft,
 }
 
-#[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
+#[derive(Debug, Serialize, Deserialize, Clone, PartialEq, Eq, Hash)]
 #[serde(rename_all = "kebab-case")]
 pub enum ActivityMode {
     OnCampus,
@@ -63,12 +63,12 @@ pub struct Activity {
     #[serde(rename = "type")]
     pub activity_type: ActivityType,
     pub name: String,
-    pub description: String,
-    pub duration: i32,
-    pub date: String,
-    pub created_at: String,
-    pub updated_at: String,
-    pub creator: String, // ObjectId
+    pub description: Option<String>,
+    pub duration: Option<f64>,
+    pub date: u128,
+    pub created_at: u128,
+    pub updated_at: u128,
+    pub creator: ObjectId, // ObjectId
     pub status: ActivityStatus,
     pub members: Option<Vec<ActivityMember>>,
 }

@@ -60,15 +60,16 @@ pub async fn load_keypair() -> (RsaPrivateKey, RsaPublicKey) {
     (private_key, public_key)
 }
 
-// pub fn encrypt(public_key: &RsaPublicKey, message: &str) -> Vec<u8> {
-//     let mut rng = OsRng;
-//     let result = public_key.encrypt(&mut rng, pkcs1v15::Pkcs1v15Encrypt, message.as_bytes());
-//     if let Ok(encrypted) = result {
-//         encrypted
-//     } else {
-//         Vec::new()
-//     }
-// }
+#[allow(dead_code)]
+pub fn encrypt(public_key: &RsaPublicKey, message: &str) -> Vec<u8> {
+    let mut rng = OsRng;
+    let result = public_key.encrypt(&mut rng, pkcs1v15::Pkcs1v15Encrypt, message.as_bytes());
+    if let Ok(encrypted) = result {
+        encrypted
+    } else {
+        Vec::new()
+    }
+}
 
 pub async fn decrypt(private_key: &RsaPrivateKey, encrypted: &[u8]) -> String {
     let result = private_key.decrypt(pkcs1v15::Pkcs1v15Encrypt, encrypted);

@@ -4,6 +4,7 @@ mod models;
 mod routers;
 mod utils;
 mod launch;
+mod tests;
 use axum::{
     routing::{delete, get, post},
     Extension, Router,

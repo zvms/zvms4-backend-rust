@@ -53,7 +53,7 @@ pub async fn remove_activity(
         }
         let activity = activity.unwrap();
         let creator = activity.creator;
-        if creator != user.id {
+        if creator != id {
             let response = ErrorResponse {
                 status: ResponseStatus::Error,
                 code: 403,
