@@ -1,6 +1,10 @@
 #[cfg(test)]
 mod tests {
     use std::time::{SystemTime, UNIX_EPOCH};
+    use bson::oid::ObjectId;
+
+    use crate::models::groups::GroupPermission;
+    use crate::utils::jwt::{generate_token, verify_token, TokenType};
     use crate::utils::rsa::{generate_keypair, encrypt, decrypt};
     use crate::routers::auth::LoginCredentials;
     #[tokio::test]
@@ -28,14 +32,31 @@ mod tests {
         let credential = credential.unwrap();
         let (private_key, public_key) = generate_keypair().await;
         let encrypted = encrypt(&public_key, credential.as_str());
-        println!("Encrypted: {:?}", &encrypted);
         let decrypted = decrypt(&private_key, &encrypted).await;
-        println!("Decrypted: {:?}", &decrypted);
         let decrypted = serde_json::from_str(&decrypted.as_str());
         if let Err(_) = decrypted {
             assert!(false);
         }
         let decrypted = decrypted.unwrap();
+        println!("Decrypted: {:#?}", &decrypted);
         assert_eq!(payload, decrypted);
+    }
+    #[tokio::test]
+    async fn token_validation() {
+        let sub = ObjectId::new().to_hex();
+        let perms = vec![
+            GroupPermission::Student,
+            GroupPermission::Admin
+        ];
+        let token = generate_token(sub.as_str(), TokenType::LongTerm, perms.clone());
+        let token = token.as_str();
+        let result = verify_token(token.to_string());
+        if let Err(_) = result {
+            assert!(false);
+        }
+        let result = result.unwrap();
+        assert_eq!(result.sub, sub);
+        assert_eq!(result.perms, perms);
+        assert_eq!(result.term, TokenType::LongTerm);
     }
 }

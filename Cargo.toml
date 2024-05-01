@@ -33,6 +33,7 @@ tower = "0.4.13"
 tower-http = "0.5.2"
 tracing-subscriber = { version = "0.3.18", features = ["tracing", "time", "serde", "serde_json", "json", "regex"] }
 uuid = "1.8.0"
+zerocopy = "0.7.32"
 
 [profile.release]
 lto = true

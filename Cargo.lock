@@ -436,6 +436,7 @@ dependencies = [
  "tower-http",
  "tracing-subscriber",
  "uuid",
+ "zerocopy",
 ]
 
 [[package]]
@@ -4130,6 +4131,7 @@ version = "0.7.32"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "74d4d3961e53fa4c9a25a8637fc2bfaf2595b3d3ae34875568a5cf64787716be"
 dependencies = [
+ "byteorder",
  "zerocopy-derive",
 ]
 

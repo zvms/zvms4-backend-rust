@@ -20,9 +20,9 @@ use tokio::sync::Mutex;
 
 #[derive(Debug, Serialize, Deserialize)]
 pub struct ReadActivityQuery {
-    page: Option<u32>,
-    perpage: Option<u32>,
-    query: Option<String>,
+    pub page: Option<u32>,
+    pub perpage: Option<u32>,
+    pub query: Option<String>,
 }
 
 pub async fn read_all(
@@ -63,10 +63,19 @@ pub async fn read_all(
     loop {
         let doc_result = cursor.try_next().await;
         if let Ok(Some(document)) = doc_result {
-            if let Ok(activity) = from_document::<Activity>(document) {
-                activities.push(activity);
-            } else {
-                break;
+            match from_document::<Activity>(document) {
+                Ok(activity) => activities.push(activity),
+                Err(e) => {
+                    let response: ErrorResponse = ErrorResponse {
+                        status: ResponseStatus::Error,
+                        code: 500,
+                        message: "Failed to read activity: ".to_string() + &e.to_string(),
+                    }
+                    .into();
+                    println!("{:?}", response);
+                    let response = serde_json::to_string(&response).unwrap();
+                    return (StatusCode::INTERNAL_SERVER_ERROR, Json(response));
+                }
             }
         } else {
             break;

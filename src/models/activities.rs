@@ -1,5 +1,8 @@
+use std::fmt;
+
 use bson::oid::ObjectId;
-use serde::{Deserialize, Serialize};
+use chrono::DateTime;
+use serde::{de::{self, Visitor}, Deserialize, Deserializer, Serialize};
 
 #[derive(Debug, Serialize, Deserialize, Clone, PartialEq, Eq, Hash)]
 #[serde(rename_all = "kebab-case")]
@@ -36,6 +39,17 @@ pub enum ActivityMode {
     SocialPractice,
 }
 
+#[derive(Debug, Serialize, Deserialize, Clone, PartialEq, Eq, Hash)]
+#[serde(rename_all = "kebab-case")]
+pub enum SpecialActivityCategory {
+    Prize,
+    Import,
+    Club,
+    Deduction,
+    Other,
+}
+
+
 #[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
 pub struct ActivityMember {
     pub _id: String, // ObjectId
@@ -56,7 +70,9 @@ pub struct ActivityMemberHistory {
     pub action: ActivityMemberStatus,
 }
 
+
 #[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
+#[serde(rename_all = "camelCase")]
 pub struct Activity {
     #[serde(rename = "_id")]
     pub _id: ObjectId,
@@ -65,10 +81,48 @@ pub struct Activity {
     pub name: String,
     pub description: Option<String>,
     pub duration: Option<f64>,
-    pub date: u128,
-    pub created_at: u128,
-    pub updated_at: u128,
+    #[serde(deserialize_with = "datetime_or_u64")]
+    pub date: u64,
+    #[serde(deserialize_with = "datetime_or_u64")]
+    pub created_at: u64,
+    #[serde(deserialize_with = "datetime_or_u64")]
+    pub updated_at: u64,
     pub creator: ObjectId, // ObjectId
     pub status: ActivityStatus,
     pub members: Option<Vec<ActivityMember>>,
+    pub location: Option<String>,
+    pub category: Option<SpecialActivityCategory>,
+}
+
+fn datetime_or_u64<'de, D>(deserializer: D) -> Result<u64, D::Error>
+where
+    D: Deserializer<'de>,
+{
+    struct DateTimeOrU64;
+
+    impl<'de> Visitor<'de> for DateTimeOrU64 {
+        type Value = u64;
+
+        fn expecting(&self, formatter: &mut fmt::Formatter) -> fmt::Result {
+            formatter.write_str("a UNIX timestamp as a u64 or a datetime string")
+        }
+
+        fn visit_u64<E>(self, value: u64) -> Result<Self::Value, E>
+        where
+            E: de::Error,
+        {
+            Ok(value)
+        }
+
+        fn visit_str<E>(self, value: &str) -> Result<Self::Value, E>
+        where
+            E: de::Error,
+        {
+            DateTime::parse_from_rfc3339(value)
+                .map_err(de::Error::custom)
+                .and_then(|dt| Ok(dt.timestamp() as u64))
+        }
+    }
+
+    deserializer.deserialize_any(DateTimeOrU64)
 }
