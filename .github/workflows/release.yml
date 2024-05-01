@@ -4,6 +4,12 @@ on:
   push:
     tags:
       - 'v*'
+  workflow_dispatch:
+    inputs:
+      version:
+        description: 'Override version number (leave blank to auto-detect from Cargo.toml)'
+        required: false
+        default: ''
 
 jobs:
   build_and_release:
