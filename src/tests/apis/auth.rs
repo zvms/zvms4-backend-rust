@@ -7,6 +7,7 @@ ObjectId: 65e6fa210edc81d012ec483a
 #[cfg(test)]
 mod tests {
     use crate::database::create_client;
+    use crate::launch::generate_rsa_keypair;
     use crate::routers::auth::{login, LoginCredentials, LoginRequest};
     use crate::utils::jwt::TokenType;
     use crate::utils::rsa::{encrypt, load_keypair};
@@ -19,6 +20,7 @@ mod tests {
 
     #[tokio::test]
     async fn test_login() {
+        generate_rsa_keypair().await;
         let client = create_client().await.unwrap();
         let client = Arc::new(Mutex::new(client));
         let client = Extension(client);
