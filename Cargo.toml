@@ -23,7 +23,7 @@ mongodb = { version = "2.8.2", features = ["async-std"] }
 once_cell = "1.19.0"
 pem = { version = "3.0.4", features = ["serde"] }
 rand = "0.8.5"
-reqwest = "0.12.3"
+reqwest = "0.12.4"
 rsa = "0.9.6"
 serde = "1.0.198"
 serde_json = "1.0.116"
