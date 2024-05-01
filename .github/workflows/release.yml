@@ -1,0 +1,53 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - 'v*'
+
+jobs:
+  build_and_release:
+    name: Build and Release
+    runs-on: [ubuntu-latest, macos-latest, windows-latest]
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v3
+
+    - name: Set up Rust
+      uses: actions-rs/toolchain@v1
+      with:
+        toolchain: stable
+        override: true
+
+    - name: Build binary
+      run: cargo build --release
+
+    - name: Extract version from Cargo.toml
+      id: vars
+      run: 'echo "::set-output name=version::$(cargo pkgid | cut -d# -f2 | cut -d: -f2)"'
+
+    - name: Rename binary
+      run: |
+        mv target/release/myapp target/release/myapp-${{ steps.vars.outputs.version }}
+
+    - name: Create release
+      id: create_release
+      uses: actions/create-release@v1
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        tag_name: ${{ github.ref }}
+        release_name: Release ${{ steps.vars.outputs.version }}
+        draft: false
+        prerelease: false
+
+    - name: Upload Release Asset
+      uses: actions/upload-release-asset@v1
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        upload_url: ${{ steps.create_release.outputs.upload_url }}
+        asset_path: ./target/release/myapp-${{ steps.vars.outputs.version }}
+        asset_name: myapp-${{ steps.vars.outputs.version }}
+        asset_content_type: application/octet-stream
