@@ -17,9 +17,9 @@ use bson::{doc, oid::ObjectId};
 use mongodb::Database;
 use serde::{Deserialize, Serialize};
 use serde_json::json;
+use std::str::FromStr;
 use std::sync::Arc;
 use tokio::sync::Mutex;
-use std::str::FromStr;
 
 #[derive(Debug, Serialize, Deserialize, PartialEq, Eq)]
 pub struct LoginRequest {
@@ -42,15 +42,10 @@ pub async fn login(
     let collection = client.collection("users");
     let id = ObjectId::from_str(&body.userid.as_str());
     if let Err(_) = id {
-        return create_error(
-            StatusCode::BAD_REQUEST,
-            "Invalid user id".to_string(),
-        );
+        return create_error(StatusCode::BAD_REQUEST, "Invalid user id".to_string());
     }
     let id = id.unwrap();
-    let user = collection
-        .find_one(Some(doc! {"_id": id}), None)
-        .await;
+    let user = collection.find_one(Some(doc! {"_id": id}), None).await;
     if let Err(_) = user {
         return create_error(
             StatusCode::INTERNAL_SERVER_ERROR,
@@ -62,19 +57,13 @@ pub async fn login(
         let keypair = load_keypair().await;
         let credentials = hex::decode(&body.credentials);
         if let Err(_) = credentials {
-            return create_error(
-                StatusCode::BAD_REQUEST,
-                "Invalid credentials".to_string(),
-            );
+            return create_error(StatusCode::BAD_REQUEST, "Invalid credentials".to_string());
         }
         let credentials = credentials.unwrap();
         let credentials = decrypt(&keypair.0, &credentials).await;
         let credentials = serde_json::from_str(&credentials);
         if let Err(_) = credentials {
-            return create_error(
-                StatusCode::BAD_REQUEST,
-                "Invalid credentials".to_string(),
-            );
+            return create_error(StatusCode::BAD_REQUEST, "Invalid credentials".to_string());
         }
         let credentials: LoginCredentials = credentials.unwrap();
         if user.clone().valid_password(credentials.password).await {
@@ -97,15 +86,9 @@ pub async fn login(
             let response = json!(response).to_string();
             (StatusCode::OK, Json(response))
         } else {
-            return create_error(
-                StatusCode::UNAUTHORIZED,
-                "Invalid credentials".to_string(),
-            );
+            return create_error(StatusCode::UNAUTHORIZED, "Invalid credentials".to_string());
         }
     } else {
-        return create_error(
-            StatusCode::NOT_FOUND,
-            "User not found".to_string(),
-        );
+        return create_error(StatusCode::NOT_FOUND, "User not found".to_string());
     }
 }

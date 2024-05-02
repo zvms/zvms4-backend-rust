@@ -9,7 +9,11 @@ mod tests {
         routers::activities::{self, read::ReadActivityQuery},
         utils::jwt::{TokenType, UserData},
     };
-    use axum::{extract::{Path, Query}, response::IntoResponse, Extension, Json};
+    use axum::{
+        extract::{Path, Query},
+        response::IntoResponse,
+        Extension, Json,
+    };
     use bson::oid::ObjectId;
     use std::{str::FromStr, sync::Arc, time::SystemTime};
     use tokio::sync::Mutex;
@@ -84,9 +88,13 @@ mod tests {
         let client = client.unwrap();
         let extension = Arc::new(Mutex::new(client));
         let extension = Extension(extension);
-        let result =
-            activities::insert::insert_activity(extension.clone(), token.clone(), Query(Some(false)), Json(activity))
-                .await;
+        let result = activities::insert::insert_activity(
+            extension.clone(),
+            token.clone(),
+            Query(Some(false)),
+            Json(activity),
+        )
+        .await;
         let result = result.into_response();
         assert!(result.status().is_success());
         let activity_read = activities::read::read_one(

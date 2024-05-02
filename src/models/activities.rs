@@ -54,7 +54,10 @@ pub enum SpecialActivityCategory {
 
 #[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
 pub struct ActivityMember {
-    #[serde(serialize_with = "objectid_to_string", deserialize_with = "string_to_objectid")]
+    #[serde(
+        serialize_with = "objectid_to_string",
+        deserialize_with = "string_to_objectid"
+    )]
     pub _id: ObjectId, // ObjectId
     pub status: ActivityMemberStatus,
     pub impression: Option<String>,
@@ -69,7 +72,10 @@ pub struct ActivityMemberHistory {
     pub impression: String,
     pub duration: f64,
     pub time: String,
-    #[serde(serialize_with = "objectid_to_string", deserialize_with = "string_to_objectid")]
+    #[serde(
+        serialize_with = "objectid_to_string",
+        deserialize_with = "string_to_objectid"
+    )]
     pub actioner: ObjectId, // ObjectId
     pub action: ActivityMemberStatus,
 }
@@ -132,7 +138,10 @@ pub struct Activity {
     pub created_at: u64,
     #[serde(deserialize_with = "datetime_or_u64")]
     pub updated_at: u64,
-    #[serde(serialize_with = "objectid_to_string", deserialize_with = "string_to_objectid")]
+    #[serde(
+        serialize_with = "objectid_to_string",
+        deserialize_with = "string_to_objectid"
+    )]
     pub creator: ObjectId, // ObjectId
     pub status: ActivityStatus,
     pub members: Option<Vec<ActivityMember>>,

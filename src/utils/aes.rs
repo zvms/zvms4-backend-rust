@@ -1,4 +1,4 @@
-use rand::{RngCore, rngs::OsRng};
+use rand::{rngs::OsRng, RngCore};
 
 pub fn generate_aes256_key() -> String {
     let mut key = [0u8; 32];

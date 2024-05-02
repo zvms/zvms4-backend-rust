@@ -1,4 +1,5 @@
 extern crate chrono;
+mod calc;
 mod database;
 mod launch;
 mod models;
@@ -78,7 +79,7 @@ async fn main() {
         )
         .route(
             "/activity/:id/member/:member_id",
-            get(routers::activities::members::read::read_member)
+            get(routers::activities::members::read::read_member),
         )
         .route(
             "/activity/:id/member",

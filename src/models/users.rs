@@ -83,8 +83,7 @@ impl UserTrait for User {
                         }
                     }
                 }
-                let token =
-                    generate_token(&user._id.to_string(), term, permissions);
+                let token = generate_token(&user._id.to_string(), term, permissions);
                 Ok(token)
             }
             Ok(None) => Err("User not found".to_string()),

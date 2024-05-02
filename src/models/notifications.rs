@@ -1,6 +1,6 @@
+use crate::models::activities::datetime_or_u64;
 use bson::oid::ObjectId;
 use serde::{Deserialize, Serialize};
-use crate::models::activities::datetime_or_u64;
 
 #[derive(Debug, Serialize, Deserialize, Clone, PartialEq, Eq, Hash)]
 #[serde(rename_all = "kebab-case")]

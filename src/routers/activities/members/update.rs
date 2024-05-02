@@ -13,24 +13,24 @@ use axum::{
 };
 use bson::{doc, oid::ObjectId};
 use mongodb::{Collection, Database};
+use serde::{Deserialize, Serialize};
 use std::{str::FromStr, sync::Arc};
 use tokio::sync::Mutex;
-use serde::{Deserialize, Serialize};
 
 #[derive(Debug, Serialize, Deserialize, Clone, Eq, PartialEq, Hash)]
 pub struct UpdateActivityMemberMode {
-    pub mode: ActivityMode
+    pub mode: ActivityMode,
 }
 
 #[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
 pub struct UpdateActivityMemberStatus {
     pub status: ActivityMemberStatus,
-    pub duration: Option<f64>
+    pub duration: Option<f64>,
 }
 
 #[derive(Debug, Serialize, Deserialize, Clone, Eq, PartialEq, Hash)]
 pub struct UpdateActivityMemberImpression {
-    pub impression: String
+    pub impression: String,
 }
 
 pub async fn update_member_status(
@@ -52,9 +52,14 @@ pub async fn update_member_status(
         return create_error(StatusCode::BAD_REQUEST, "Invalid member ID".to_string());
     }
     let member_id = member_id.unwrap();
-    let activity = collection.find_one(doc! {"_id": activity_id, "members._id": member_id}, None).await;
+    let activity = collection
+        .find_one(doc! {"_id": activity_id, "members._id": member_id}, None)
+        .await;
     if let Err(_) = activity {
-        return create_error(StatusCode::INTERNAL_SERVER_ERROR, "Failed to find activity".to_string());
+        return create_error(
+            StatusCode::INTERNAL_SERVER_ERROR,
+            "Failed to find activity".to_string(),
+        );
     }
     let activity = activity.unwrap();
     if let None = activity {
@@ -68,12 +73,29 @@ pub async fn update_member_status(
     let mut members = members.unwrap();
     for member in members.iter_mut() {
         if member._id == member_id {
-            if member.status == ActivityMemberStatus::Effective || member.status == ActivityMemberStatus::Refused {
-                return create_error(StatusCode::FORBIDDEN, "Cannot update member status".to_string());
-            } else if member.status == ActivityMemberStatus::Pending && !user.perms.contains(&GroupPermission::Auditor) && !user.perms.contains(&GroupPermission::Admin) {
-                return create_error(StatusCode::FORBIDDEN, "Cannot update member status".to_string());
-            } else if member.status == ActivityMemberStatus::Draft || member.status == ActivityMemberStatus::Rejected && user.id != member_id.to_string() {
-                return create_error(StatusCode::FORBIDDEN, "Cannot update member status".to_string());
+            if member.status == ActivityMemberStatus::Effective
+                || member.status == ActivityMemberStatus::Refused
+            {
+                return create_error(
+                    StatusCode::FORBIDDEN,
+                    "Cannot update member status".to_string(),
+                );
+            } else if member.status == ActivityMemberStatus::Pending
+                && !user.perms.contains(&GroupPermission::Auditor)
+                && !user.perms.contains(&GroupPermission::Admin)
+            {
+                return create_error(
+                    StatusCode::FORBIDDEN,
+                    "Cannot update member status".to_string(),
+                );
+            } else if member.status == ActivityMemberStatus::Draft
+                || member.status == ActivityMemberStatus::Rejected
+                    && user.id != member_id.to_string()
+            {
+                return create_error(
+                    StatusCode::FORBIDDEN,
+                    "Cannot update member status".to_string(),
+                );
             }
             let status = serde_json::to_string(&update.status).unwrap();
             let result = collection.update_one(
@@ -82,11 +104,17 @@ pub async fn update_member_status(
                 None,
             ).await;
             if let Err(_) = result {
-                return create_error(StatusCode::INTERNAL_SERVER_ERROR, "Failed to update member status".to_string());
+                return create_error(
+                    StatusCode::INTERNAL_SERVER_ERROR,
+                    "Failed to update member status".to_string(),
+                );
             }
             let result = result.unwrap();
             if result.modified_count != 1 {
-                return create_error(StatusCode::INTERNAL_SERVER_ERROR, "Failed to update member status".to_string());
+                return create_error(
+                    StatusCode::INTERNAL_SERVER_ERROR,
+                    "Failed to update member status".to_string(),
+                );
             }
             let response: SuccessResponse<Vec<ActivityMember>, ()> = SuccessResponse {
                 status: ResponseStatus::Success,

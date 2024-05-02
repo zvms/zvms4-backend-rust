@@ -1,14 +1,18 @@
-use crate::utils::jwt::{UserData, verify_token};
+use crate::models::response::{ErrorResponse, ResponseStatus};
+use crate::utils::jwt::{verify_token, UserData};
 use axum::{
     async_trait,
     body::Body,
     extract::FromRequestParts,
     http::{request::Parts, StatusCode},
-    response::{IntoResponse, Response}, RequestPartsExt,
+    response::{IntoResponse, Response},
+    RequestPartsExt,
 };
-use axum_extra::{headers::{authorization::Bearer, Authorization}, TypedHeader};
-use serde::{Serialize, Deserialize};
-use crate::models::response::{ErrorResponse, ResponseStatus};
+use axum_extra::{
+    headers::{authorization::Bearer, Authorization},
+    TypedHeader,
+};
+use serde::{Deserialize, Serialize};
 
 #[derive(Debug, Serialize, Deserialize, Clone)]
 pub enum AuthenticationError {
@@ -20,9 +24,15 @@ pub enum AuthenticationError {
 impl IntoResponse for AuthenticationError {
     fn into_response(self) -> Response<Body> {
         let (status, response) = match self {
-            AuthenticationError::InvalidToken => (StatusCode::UNAUTHORIZED, "Invalid token".to_string()),
-            AuthenticationError::MissingToken => (StatusCode::BAD_REQUEST, "Missing token".to_string()),
-            AuthenticationError::ExpiredToken => (StatusCode::UNAUTHORIZED, "Expired token".to_string()),
+            AuthenticationError::InvalidToken => {
+                (StatusCode::UNAUTHORIZED, "Invalid token".to_string())
+            }
+            AuthenticationError::MissingToken => {
+                (StatusCode::BAD_REQUEST, "Missing token".to_string())
+            }
+            AuthenticationError::ExpiredToken => {
+                (StatusCode::UNAUTHORIZED, "Expired token".to_string())
+            }
         };
         let response = ErrorResponse {
             status: ResponseStatus::Error,
@@ -54,7 +64,7 @@ where
                 };
                 Ok(data)
             } else {
-                return Err(AuthenticationError::InvalidToken)
+                return Err(AuthenticationError::InvalidToken);
             }
         } else {
             Err(AuthenticationError::MissingToken)

@@ -1,6 +1,11 @@
-use crate::{models::{
-    activities::{Activity, ActivityStatus, ActivityType}, groups::GroupPermission, response::{ResponseStatus, SuccessResponse, create_error}
-}, utils::jwt::UserData};
+use crate::{
+    models::{
+        activities::{Activity, ActivityStatus, ActivityType},
+        groups::GroupPermission,
+        response::{create_error, ResponseStatus, SuccessResponse},
+    },
+    utils::jwt::UserData,
+};
 use axum::{
     extract::{Extension, Query},
     http::StatusCode,
@@ -37,7 +42,9 @@ pub async fn insert_activity(
             return create_error(StatusCode::FORBIDDEN, "Permission denied".to_string());
         }
     } else {
-        if activity.activity_type == ActivityType::Social || activity.activity_type == ActivityType::Scale {
+        if activity.activity_type == ActivityType::Social
+            || activity.activity_type == ActivityType::Scale
+        {
             activity.status = ActivityStatus::Pending;
         } else {
             return create_error(StatusCode::FORBIDDEN, "Permission denied".to_string());

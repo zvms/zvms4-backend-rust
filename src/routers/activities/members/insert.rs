@@ -34,10 +34,7 @@ pub async fn insert_member_into_activity(
     }
     let activity = activity.unwrap();
     if let None = activity {
-        return create_error(
-            StatusCode::NOT_FOUND,
-            "Activity not found".to_string(),
-        );
+        return create_error(StatusCode::NOT_FOUND, "Activity not found".to_string());
     }
     let activity: Activity = bson::from_document(activity.unwrap()).unwrap();
     let members = activity.members.unwrap_or_default();
@@ -46,23 +43,17 @@ pub async fn insert_member_into_activity(
         .iter()
         .any(|member| member._id == ObjectId::from_str(&activity_member._id.to_hex()).unwrap())
     {
-        return create_error(
-            StatusCode::BAD_REQUEST,
-            "Member already exists".to_string(),
-        );
+        return create_error(StatusCode::BAD_REQUEST, "Member already exists".to_string());
     }
-    if user.perms.contains(&GroupPermission::Admin) || user.perms.contains(&GroupPermission::Department) {} else {
-        return create_error(
-            StatusCode::FORBIDDEN,
-            "Permission denied".to_string(),
-        );
+    if user.perms.contains(&GroupPermission::Admin)
+        || user.perms.contains(&GroupPermission::Department)
+    {
+    } else {
+        return create_error(StatusCode::FORBIDDEN, "Permission denied".to_string());
     }
     let member = bson::to_document(&activity_member);
     if let Err(_) = member {
-        return create_error(
-            StatusCode::BAD_REQUEST,
-            "Invalid member".to_string(),
-        );
+        return create_error(StatusCode::BAD_REQUEST, "Invalid member".to_string());
     }
     let result = collection
         .update_one(

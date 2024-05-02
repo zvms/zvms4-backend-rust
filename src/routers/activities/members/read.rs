@@ -1,6 +1,8 @@
 use crate::{
     models::{
-        activities::{Activity, ActivityMember}, groups::GroupPermission, response::{create_error, ResponseStatus, SuccessResponse}
+        activities::{Activity, ActivityMember},
+        groups::GroupPermission,
+        response::{create_error, ResponseStatus, SuccessResponse},
     },
     utils::{groups::same_class, jwt::UserData},
 };
@@ -33,20 +35,33 @@ pub async fn read_member(
         return create_error(StatusCode::BAD_REQUEST, "Invalid member ID".to_string());
     }
     let member_id = member_id.unwrap();
-    let activity = collection.find_one(doc! {"_id": activity_id, "members._id": member_id}, None).await;
+    let activity = collection
+        .find_one(doc! {"_id": activity_id, "members._id": member_id}, None)
+        .await;
     if let Err(_) = activity {
-        return create_error(StatusCode::INTERNAL_SERVER_ERROR, "Failed to find activity".to_string());
+        return create_error(
+            StatusCode::INTERNAL_SERVER_ERROR,
+            "Failed to find activity".to_string(),
+        );
     }
     let activity = activity.unwrap();
     if let None = activity {
         return create_error(StatusCode::NOT_FOUND, "Activity not found".to_string());
     }
     let activity: Activity = bson::from_document(activity.unwrap()).unwrap();
-    if user.perms.contains(&GroupPermission::Admin) || user.perms.contains(&GroupPermission::Department) || user.perms.contains(&GroupPermission::Auditor) || user.id == member_id.clone().to_string() {} else if user.perms.contains(&GroupPermission::Secretary) {
+    if user.perms.contains(&GroupPermission::Admin)
+        || user.perms.contains(&GroupPermission::Department)
+        || user.perms.contains(&GroupPermission::Auditor)
+        || user.id == member_id.clone().to_string()
+    {
+    } else if user.perms.contains(&GroupPermission::Secretary) {
         let user_id = ObjectId::from_str(&user.id).unwrap();
         let same = same_class::validate_same_class(db_clone, member_id, user_id).await;
         if let Err(e) = same {
-            return create_error(StatusCode::INTERNAL_SERVER_ERROR, "Cannot validate user".to_string() + &e);
+            return create_error(
+                StatusCode::INTERNAL_SERVER_ERROR,
+                "Cannot validate user".to_string() + &e,
+            );
         }
         if !same.unwrap() {
             return create_error(StatusCode::FORBIDDEN, "Permission denied".to_string());
@@ -54,7 +69,11 @@ pub async fn read_member(
     } else {
         return create_error(StatusCode::FORBIDDEN, "Permission denied".to_string());
     }
-    let member = activity.members.unwrap_or_default().into_iter().find(|member| member._id == member_id);
+    let member = activity
+        .members
+        .unwrap_or_default()
+        .into_iter()
+        .find(|member| member._id == member_id);
     if let None = member {
         return create_error(StatusCode::NOT_FOUND, "Member not found".to_string());
     }

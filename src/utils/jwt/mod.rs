@@ -1,7 +1,7 @@
 use crate::models::groups::GroupPermission;
+use crate::utils::aes::read_aes256_key;
 use jsonwebtoken::{decode, encode, DecodingKey, EncodingKey, Header, Validation};
 use serde::{Deserialize, Serialize};
-use crate::utils::aes::read_aes256_key;
 use std::time::{SystemTime, UNIX_EPOCH};
 pub mod valid;
 

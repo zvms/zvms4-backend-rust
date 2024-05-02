@@ -1,2 +1,2 @@
-mod auth;
 mod apis;
+mod auth;

@@ -39,10 +39,7 @@ pub async fn read_all(
         || user.perms.contains(&GroupPermission::Auditor)
     {
     } else {
-        return create_error(
-            StatusCode::FORBIDDEN,
-            "Permission denied".to_string(),
-        );
+        return create_error(StatusCode::FORBIDDEN, "Permission denied".to_string());
     }
     let page = page.unwrap_or(1);
     let perpage = perpage.unwrap_or(10);
@@ -100,7 +97,7 @@ pub async fn read_all(
     if let Err(e) = cursor {
         return create_error(
             StatusCode::INTERNAL_SERVER_ERROR,
-            "Failed to read activity: ".to_string() + &e.to_string()
+            "Failed to read activity: ".to_string() + &e.to_string(),
         );
     }
     let mut cursor = cursor.unwrap();
