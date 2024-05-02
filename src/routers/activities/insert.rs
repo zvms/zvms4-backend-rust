@@ -1,5 +1,5 @@
 use crate::{models::{
-    activities::{Activity, ActivityStatus, ActivityType}, groups::GroupPermission, response::{ErrorResponse, ResponseStatus, SuccessResponse}
+    activities::{Activity, ActivityStatus, ActivityType}, groups::GroupPermission, response::{ResponseStatus, SuccessResponse, create_error}
 }, utils::jwt::UserData};
 use axum::{
     extract::{Extension, Query},
@@ -34,25 +34,13 @@ pub async fn insert_activity(
         } else if activity.activity_type != ActivityType::Special {
             activity.status = ActivityStatus::Effective;
         } else {
-            let response = ErrorResponse {
-                status: ResponseStatus::Error,
-                code: 403,
-                message: "Permission denied".to_string(),
-            };
-            let response = serde_json::to_string(&response).unwrap();
-            return (StatusCode::FORBIDDEN, Json(response));
+            return create_error(StatusCode::FORBIDDEN, "Permission denied".to_string());
         }
     } else {
         if activity.activity_type == ActivityType::Social || activity.activity_type == ActivityType::Scale {
             activity.status = ActivityStatus::Pending;
         } else {
-            let response = ErrorResponse {
-                status: ResponseStatus::Error,
-                code: 403,
-                message: "Permission denied".to_string(),
-            };
-            let response = serde_json::to_string(&response).unwrap();
-            return (StatusCode::FORBIDDEN, Json(response));
+            return create_error(StatusCode::FORBIDDEN, "Permission denied".to_string());
         }
     }
     // Remove the _id field if it exists
@@ -73,21 +61,15 @@ pub async fn insert_activity(
             let response = serde_json::to_string(&response).unwrap();
             (StatusCode::OK, Json(response))
         } else {
-            let response = ErrorResponse {
-                status: ResponseStatus::Error,
-                code: 500,
-                message: "Failed to insert activity".to_string(),
-            };
-            let response = serde_json::to_string(&response).unwrap();
-            (StatusCode::INTERNAL_SERVER_ERROR, Json(response))
+            return create_error(
+                StatusCode::INTERNAL_SERVER_ERROR,
+                "Failed to insert activity".to_string(),
+            );
         }
     } else {
-        let response = ErrorResponse {
-            status: ResponseStatus::Error,
-            code: 500,
-            message: "Failed to insert activity".to_string(),
-        };
-        let response = serde_json::to_string(&response).unwrap();
-        (StatusCode::INTERNAL_SERVER_ERROR, Json(response))
+        return create_error(
+            StatusCode::INTERNAL_SERVER_ERROR,
+            "Failed to insert activity".to_string(),
+        );
     }
 }

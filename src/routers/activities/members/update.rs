@@ -2,7 +2,7 @@ use crate::{
     models::{
         activities::{Activity, ActivityMember, ActivityMemberStatus, ActivityMode},
         groups::GroupPermission,
-        response::{ErrorResponse, ResponseStatus, SuccessResponse},
+        response::{create_error, ResponseStatus, SuccessResponse},
     },
     utils::jwt::UserData,
 };
@@ -44,84 +44,36 @@ pub async fn update_member_status(
     let collection: Collection<Activity> = db.collection("activities");
     let activity_id = ObjectId::from_str(&id.as_str());
     if let Err(_) = activity_id {
-        let response = ErrorResponse {
-            status: ResponseStatus::Error,
-            code: 400,
-            message: "Invalid activity ID".to_string(),
-        };
-        let response = serde_json::to_string(&response).unwrap();
-        return (StatusCode::BAD_REQUEST, Json(response));
+        return create_error(StatusCode::BAD_REQUEST, "Invalid activity ID".to_string());
     }
     let activity_id = activity_id.unwrap();
     let member_id = ObjectId::from_str(&member_id.as_str());
     if let Err(_) = member_id {
-        let response = ErrorResponse {
-            status: ResponseStatus::Error,
-            code: 400,
-            message: "Invalid member ID".to_string(),
-        };
-        let response = serde_json::to_string(&response).unwrap();
-        return (StatusCode::BAD_REQUEST, Json(response));
+        return create_error(StatusCode::BAD_REQUEST, "Invalid member ID".to_string());
     }
     let member_id = member_id.unwrap();
     let activity = collection.find_one(doc! {"_id": activity_id, "members._id": member_id}, None).await;
     if let Err(_) = activity {
-        let response = ErrorResponse {
-            status: ResponseStatus::Error,
-            code: 404,
-            message: "Failed to find activity".to_string(),
-        };
-        let response = serde_json::to_string(&response).unwrap();
-        return (StatusCode::NOT_FOUND, Json(response));
+        return create_error(StatusCode::INTERNAL_SERVER_ERROR, "Failed to find activity".to_string());
     }
     let activity = activity.unwrap();
     if let None = activity {
-        let response = ErrorResponse {
-            status: ResponseStatus::Error,
-            code: 404,
-            message: "Activity not found".to_string(),
-        };
-        let response = serde_json::to_string(&response).unwrap();
-        return (StatusCode::NOT_FOUND, Json(response));
+        return create_error(StatusCode::NOT_FOUND, "Activity not found".to_string());
     }
     let activity: Activity = activity.unwrap();
     let members = activity.members;
     if let None = members {
-        let response = ErrorResponse {
-            status: ResponseStatus::Error,
-            code: 404,
-            message: "Activity has no members".to_string(),
-        };
-        let response = serde_json::to_string(&response).unwrap();
-        return (StatusCode::NOT_FOUND, Json(response));
+        return create_error(StatusCode::NOT_FOUND, "Activity has no members".to_string());
     }
     let mut members = members.unwrap();
     for member in members.iter_mut() {
         if member._id == member_id {
             if member.status == ActivityMemberStatus::Effective || member.status == ActivityMemberStatus::Refused {
-                let response = ErrorResponse {
-                    status: ResponseStatus::Error,
-                    code: 403,
-                    message: "Cannot update member duration".to_string(),
-                };
-                let response = serde_json::to_string(&response).unwrap();
-                return (StatusCode::FORBIDDEN, Json(response));
+                return create_error(StatusCode::FORBIDDEN, "Cannot update member status".to_string());
             } else if member.status == ActivityMemberStatus::Pending && !user.perms.contains(&GroupPermission::Auditor) && !user.perms.contains(&GroupPermission::Admin) {
-                let response = ErrorResponse {
-                    status: ResponseStatus::Error,
-                    code: 403,
-                    message: "Cannot update member duration".to_string(),
-                };
-                let response = serde_json::to_string(&response).unwrap();
-                return (StatusCode::FORBIDDEN, Json(response));
+                return create_error(StatusCode::FORBIDDEN, "Cannot update member status".to_string());
             } else if member.status == ActivityMemberStatus::Draft || member.status == ActivityMemberStatus::Rejected && user.id != member_id.to_string() {
-                let response = ErrorResponse {
-                    status: ResponseStatus::Error,
-                    code: 403,
-                    message: "Cannot update member duration".to_string(),
-                };
-                let response = serde_json::to_string(&response).unwrap();
-                return (StatusCode::FORBIDDEN, Json(response));
+                return create_error(StatusCode::FORBIDDEN, "Cannot update member status".to_string());
             }
             let status = serde_json::to_string(&update.status).unwrap();
             let result = collection.update_one(
@@ -130,23 +82,11 @@ pub async fn update_member_status(
                 None,
             ).await;
             if let Err(_) = result {
-                let response = ErrorResponse {
-                    status: ResponseStatus::Error,
-                    code: 500,
-                    message: "Failed to update member status".to_string(),
-                };
-                let response = serde_json::to_string(&response).unwrap();
-                return (StatusCode::INTERNAL_SERVER_ERROR, Json(response));
+                return create_error(StatusCode::INTERNAL_SERVER_ERROR, "Failed to update member status".to_string());
             }
             let result = result.unwrap();
             if result.modified_count != 1 {
-                let response = ErrorResponse {
-                    status: ResponseStatus::Error,
-                    code: 500,
-                    message: "Failed to update member status".to_string(),
-                };
-                let response = serde_json::to_string(&response).unwrap();
-                return (StatusCode::INTERNAL_SERVER_ERROR, Json(response));
+                return create_error(StatusCode::INTERNAL_SERVER_ERROR, "Failed to update member status".to_string());
             }
             let response: SuccessResponse<Vec<ActivityMember>, ()> = SuccessResponse {
                 status: ResponseStatus::Success,

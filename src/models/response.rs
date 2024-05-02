@@ -1,3 +1,5 @@
+use axum::Json;
+use reqwest::StatusCode;
 use serde::{Deserialize, Serialize};
 
 #[derive(Debug, Serialize, Deserialize, Clone, PartialEq, Eq, Hash)]
@@ -18,7 +20,7 @@ pub struct SuccessResponse<T, M> {
 #[derive(Debug, Serialize, Deserialize, Clone, PartialEq, Eq, Hash)]
 pub struct ErrorResponse {
     pub status: ResponseStatus,
-    pub code: i32,
+    pub code: u16,
     pub message: String,
 }
 
@@ -31,4 +33,14 @@ pub enum Response<T, M> {
 #[derive(Debug, Serialize, Deserialize, Clone, PartialEq, Eq, Hash)]
 pub struct MetadataSize {
     pub size: u64,
+}
+
+pub fn create_error(code: StatusCode, message: String) -> (StatusCode, Json<String>) {
+    let resposne = ErrorResponse {
+        status: ResponseStatus::Error,
+        code: code.as_u16(),
+        message,
+    };
+    let response = serde_json::to_string(&resposne).unwrap();
+    (code, Json(response))
 }

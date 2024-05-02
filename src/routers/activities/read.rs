@@ -2,7 +2,7 @@ use crate::{
     models::{
         activities::Activity,
         groups::GroupPermission,
-        response::{ErrorResponse, MetadataSize, ResponseStatus, SuccessResponse},
+        response::{create_error, MetadataSize, ResponseStatus, SuccessResponse},
     },
     utils::jwt::UserData,
 };
@@ -39,14 +39,10 @@ pub async fn read_all(
         || user.perms.contains(&GroupPermission::Auditor)
     {
     } else {
-        let response: ErrorResponse = ErrorResponse {
-            status: ResponseStatus::Error,
-            code: 403,
-            message: "Permission denied".to_string(),
-        }
-        .into();
-        let response = serde_json::to_string(&response).unwrap();
-        return (StatusCode::FORBIDDEN, Json(response));
+        return create_error(
+            StatusCode::FORBIDDEN,
+            "Permission denied".to_string(),
+        );
     }
     let page = page.unwrap_or(1);
     let perpage = perpage.unwrap_or(10);
@@ -60,16 +56,17 @@ pub async fn read_all(
     } else {
         ""
     };
-    let count = collection.count_documents(doc! {"name": {"$regex": query.clone(), "$options": "i"}}, None).await;
+    let count = collection
+        .count_documents(
+            doc! {"name": {"$regex": query.clone(), "$options": "i"}},
+            None,
+        )
+        .await;
     if let Err(e) = count {
-        let response: ErrorResponse = ErrorResponse {
-            status: ResponseStatus::Error,
-            code: 500,
-            message: "Failed to read activity: ".to_string() + &e.to_string(),
-        }
-        .into();
-        let response = serde_json::to_string(&response).unwrap();
-        return (StatusCode::INTERNAL_SERVER_ERROR, Json(response));
+        return create_error(
+            StatusCode::INTERNAL_SERVER_ERROR,
+            "Failed to read activity: ".to_string() + &e.to_string(),
+        );
     }
     let pipeline = vec![
         doc! {"$match": {"name": {"$regex": query, "$options": "i"}}},
@@ -101,41 +98,29 @@ pub async fn read_all(
     ];
     let cursor = collection.aggregate(pipeline, None).await;
     if let Err(e) = cursor {
-        let response: ErrorResponse = ErrorResponse {
-            status: ResponseStatus::Error,
-            code: 500,
-            message: "Failed to read activity: ".to_string() + &e.to_string(),
-        }
-        .into();
-        let response = serde_json::to_string(&response).unwrap();
-        return (StatusCode::INTERNAL_SERVER_ERROR, Json(response));
+        return create_error(
+            StatusCode::INTERNAL_SERVER_ERROR,
+            "Failed to read activity: ".to_string() + &e.to_string()
+        );
     }
     let mut cursor = cursor.unwrap();
     let mut activities = Vec::new();
     loop {
         let doc_result = cursor.try_next().await;
         if let Err(e) = doc_result {
-            let response: ErrorResponse = ErrorResponse {
-                status: ResponseStatus::Error,
-                code: 500,
-                message: "Failed to read activity: ".to_string() + &e.to_string(),
-            }
-            .into();
-            let response = serde_json::to_string(&response).unwrap();
-            return (StatusCode::INTERNAL_SERVER_ERROR, Json(response));
+            return create_error(
+                StatusCode::INTERNAL_SERVER_ERROR,
+                "Failed to read activity: ".to_string() + &e.to_string(),
+            );
         }
         if let Ok(Some(document)) = doc_result {
             match from_document::<Activity>(document) {
                 Ok(activity) => activities.push(activity),
                 Err(e) => {
-                    let response: ErrorResponse = ErrorResponse {
-                        status: ResponseStatus::Error,
-                        code: 500,
-                        message: "Failed to read activity: ".to_string() + &e.to_string(),
-                    }
-                    .into();
-                    let response = serde_json::to_string(&response).unwrap();
-                    return (StatusCode::INTERNAL_SERVER_ERROR, Json(response));
+                    return create_error(
+                        StatusCode::INTERNAL_SERVER_ERROR,
+                        "Failed to read activity: ".to_string() + &e.to_string(),
+                    )
                 }
             }
         } else {
@@ -148,7 +133,7 @@ pub async fn read_all(
         data: activities,
         metadata: Some(MetadataSize {
             size: count.unwrap(),
-        })
+        }),
     };
     let response = serde_json::to_string(&response).unwrap();
     (StatusCode::OK, Json(response))
@@ -163,13 +148,7 @@ pub async fn read_one(
     let collection = db.collection("activities");
     let id = ObjectId::parse_str(&id);
     if let Err(_) = id {
-        let response = ErrorResponse {
-            status: ResponseStatus::Error,
-            code: 400,
-            message: "Invalid ID".to_string(),
-        };
-        let response = serde_json::to_string(&response).unwrap();
-        return (StatusCode::BAD_REQUEST, Json(response));
+        return create_error(StatusCode::BAD_REQUEST, "Invalid ID".to_string());
     }
     let id = id.unwrap();
     let filter = doc! {"_id": id};
@@ -185,13 +164,10 @@ pub async fn read_one(
         )
         .await;
     if let Err(e) = result {
-        let response = ErrorResponse {
-            status: ResponseStatus::Error,
-            code: 500,
-            message: "Failed to read activity: ".to_string() + &e.to_string(),
-        };
-        let response = serde_json::to_string(&response).unwrap();
-        return (StatusCode::INTERNAL_SERVER_ERROR, Json(response));
+        return create_error(
+            StatusCode::INTERNAL_SERVER_ERROR,
+            "Failed to read activity: ".to_string() + &e.to_string(),
+        );
     }
     let result: Option<Activity> = result.unwrap();
     match result {
@@ -206,13 +182,7 @@ pub async fn read_one(
             (StatusCode::OK, Json(response))
         }
         None => {
-            let response = ErrorResponse {
-                status: ResponseStatus::Error,
-                code: 404,
-                message: "Activity not found".to_string(),
-            };
-            let response = serde_json::to_string(&response).unwrap();
-            (StatusCode::NOT_FOUND, Json(response))
+            return create_error(StatusCode::NOT_FOUND, "Activity not found".to_string());
         }
     }
 }

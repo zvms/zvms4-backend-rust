@@ -26,7 +26,7 @@ impl IntoResponse for AuthenticationError {
         };
         let response = ErrorResponse {
             status: ResponseStatus::Error,
-            code: status.as_u16() as i32,
+            code: status.as_u16(),
             message: response,
         };
         let response = serde_json::to_string(&response).unwrap();
