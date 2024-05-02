@@ -2,7 +2,7 @@ use crate::{
     models::{
         activities::Activity,
         groups::GroupPermission,
-        response::{ErrorResponse, ResponseStatus, SuccessResponse},
+        response::{ErrorResponse, MetadataSize, ResponseStatus, SuccessResponse},
     },
     utils::jwt::UserData,
 };
@@ -60,6 +60,17 @@ pub async fn read_all(
     } else {
         ""
     };
+    let count = collection.count_documents(doc! {"name": {"$regex": query.clone(), "$options": "i"}}, None).await;
+    if let Err(e) = count {
+        let response: ErrorResponse = ErrorResponse {
+            status: ResponseStatus::Error,
+            code: 500,
+            message: "Failed to read activity: ".to_string() + &e.to_string(),
+        }
+        .into();
+        let response = serde_json::to_string(&response).unwrap();
+        return (StatusCode::INTERNAL_SERVER_ERROR, Json(response));
+    }
     let pipeline = vec![
         doc! {"$match": {"name": {"$regex": query, "$options": "i"}}},
         doc! {"$sort": {"_id": -1}},
@@ -131,11 +142,13 @@ pub async fn read_all(
             break;
         }
     }
-    let response: SuccessResponse<_, ()> = SuccessResponse {
+    let response: SuccessResponse<_, MetadataSize> = SuccessResponse {
         status: ResponseStatus::Success,
         code: 200,
         data: activities,
-        metadata: None,
+        metadata: Some(MetadataSize {
+            size: count.unwrap(),
+        })
     };
     let response = serde_json::to_string(&response).unwrap();
     (StatusCode::OK, Json(response))

@@ -27,3 +27,8 @@ pub enum Response<T, M> {
     Success(SuccessResponse<T, M>),
     Error(ErrorResponse),
 }
+
+#[derive(Debug, Serialize, Deserialize, Clone, PartialEq, Eq, Hash)]
+pub struct MetadataSize {
+    pub size: u64,
+}
