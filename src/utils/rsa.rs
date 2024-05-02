@@ -60,7 +60,7 @@ pub async fn load_keypair() -> (RsaPrivateKey, RsaPublicKey) {
     (private_key, public_key)
 }
 
-#[allow(dead_code)]
+#[cfg(test)]
 pub fn encrypt(public_key: &RsaPublicKey, message: &str) -> Vec<u8> {
     let mut rng = OsRng;
     let result = public_key.encrypt(&mut rng, pkcs1v15::Pkcs1v15Encrypt, message.as_bytes());
