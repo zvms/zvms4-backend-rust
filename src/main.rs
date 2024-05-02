@@ -89,6 +89,10 @@ async fn main() {
             "/activity/:id/member/:member_id/status",
             put(routers::activities::members::update::update_member_status),
         )
+        .route(
+            "/activity/:id/member/:member_id/impression",
+            put(routers::activities::members::update::update_member_impression),
+        )
         .route("/user/auth", post(routers::auth::login))
         .layer(Extension(shared_client.clone()));
 

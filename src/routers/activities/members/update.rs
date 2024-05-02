@@ -12,6 +12,7 @@ use axum::{
     response::IntoResponse,
 };
 use bson::{doc, oid::ObjectId};
+use futures::StreamExt;
 use mongodb::{Collection, Database};
 use serde::{Deserialize, Serialize};
 use std::{str::FromStr, sync::Arc};
@@ -127,4 +128,92 @@ pub async fn update_member_status(
         }
     }
     (StatusCode::OK, Json("".to_string()))
+}
+
+pub async fn update_member_impression(
+    Extension(db): Extension<Arc<Mutex<Database>>>,
+    user: UserData,
+    Path(id): Path<String>,
+    Path(member_id): Path<String>,
+    Json(update): Json<UpdateActivityMemberImpression>,
+) -> impl IntoResponse {
+    let db = db.lock().await;
+    let collection: Collection<Activity> = db.collection("activities");
+    let activity_id = ObjectId::from_str(&id.as_str());
+    if let Err(_) = activity_id {
+        return create_error(StatusCode::BAD_REQUEST, "Invalid activity ID".to_string());
+    }
+    let activity_id = activity_id.unwrap();
+    let member_id = ObjectId::from_str(&member_id.as_str());
+    if let Err(_) = member_id {
+        return create_error(StatusCode::BAD_REQUEST, "Invalid member ID".to_string());
+    }
+    let member_id = member_id.unwrap();
+    if member_id.to_string() != user.id {
+        return create_error(StatusCode::FORBIDDEN, "Permission denied".to_string());
+    }
+    let pipeline = vec![
+        doc! {"$match": {"_id": activity_id}},
+        doc! {"$unwind": "$members"},
+        doc! {"$match": {"members._id": member_id}},
+        doc! {"$project": {"members": 1}},
+    ];
+    let activity = collection.aggregate(pipeline, None).await;
+    if let Err(_) = activity {
+        return create_error(
+            StatusCode::INTERNAL_SERVER_ERROR,
+            "Failed to find activity".to_string(),
+        );
+    }
+    let activity = activity.unwrap().collect::<Vec<_>>().await[0].clone();
+    if let Err(e) = activity {
+        return create_error(
+            StatusCode::NOT_FOUND,
+            "Activity not found".to_string() + &e.to_string(),
+        );
+    }
+    let member = bson::from_document::<ActivityMember>(activity.unwrap());
+    if let Err(_) = member {
+        return create_error(
+            StatusCode::INTERNAL_SERVER_ERROR,
+            "Failed to find member".to_string(),
+        );
+    }
+    let member = member.unwrap();
+    if member.status == ActivityMemberStatus::Effective
+        || member.status == ActivityMemberStatus::Refused
+    {
+        return create_error(
+            StatusCode::FORBIDDEN,
+            "Cannot update member impression".to_string(),
+        );
+    }
+    let result = collection
+        .update_one(
+            doc! {"_id": activity_id, "members._id": member_id},
+            doc! {"$set": {"members.$.impression": update.impression}},
+            None,
+        )
+        .await;
+    if let Err(_) = result {
+        return create_error(
+            StatusCode::INTERNAL_SERVER_ERROR,
+            "Failed to update member impression".to_string(),
+        );
+    }
+    let result = result.unwrap();
+    if result.modified_count != 1 {
+        return create_error(
+            StatusCode::INTERNAL_SERVER_ERROR,
+            "Failed to update member impression".to_string(),
+        );
+    }
+    let response: SuccessResponse<Vec<ActivityMember>, ()> = SuccessResponse {
+        status: ResponseStatus::Success,
+        code: 200,
+        data: vec![],
+        metadata: None,
+    };
+    let response = serde_json::to_string(&response).unwrap();
+    (StatusCode::OK, Json(response))
 }
