@@ -39,7 +39,7 @@ pub async fn update_activity_name(
     if let Err(e) = activity {
         return create_error(
             StatusCode::INTERNAL_SERVER_ERROR,
-            "Failed to find activity: ".to_string() + &e.to_string(),
+            format!("Failed to find activity: {}", e.to_string()),
         );
     }
     let activity = activity.unwrap();
@@ -58,7 +58,7 @@ pub async fn update_activity_name(
         if let Err(e) = result {
             return create_error(
                 StatusCode::INTERNAL_SERVER_ERROR,
-                "Failed to update activity: ".to_string() + &e.to_string(),
+                format!("Failed to update activity: {}", e.to_string()),
             );
         }
         let response: SuccessResponse<Vec<Activity>, ()> = SuccessResponse {
@@ -96,7 +96,7 @@ pub async fn update_activity_description(
     if let Err(e) = activity {
         return create_error(
             StatusCode::INTERNAL_SERVER_ERROR,
-            "Failed to find activity: ".to_string() + &e.to_string(),
+            format!("Failed to find activity: {}", e.to_string()),
         );
     }
     let activity = activity.unwrap();
@@ -119,7 +119,7 @@ pub async fn update_activity_description(
         if let Err(e) = result {
             return create_error(
                 StatusCode::INTERNAL_SERVER_ERROR,
-                "Failed to update activity: ".to_string() + &e.to_string(),
+                format!("Failed to update activity: {}", e.to_string()),
             );
         }
         let response: SuccessResponse<Vec<Activity>, ()> = SuccessResponse {

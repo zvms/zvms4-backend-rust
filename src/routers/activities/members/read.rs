@@ -60,7 +60,7 @@ pub async fn read_member(
         if let Err(e) = same {
             return create_error(
                 StatusCode::INTERNAL_SERVER_ERROR,
-                "Cannot validate user".to_string() + &e,
+                format!("Failed to validate user: {}", e),
             );
         }
         if !same.unwrap() {

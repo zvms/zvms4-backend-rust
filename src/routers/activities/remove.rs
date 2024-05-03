@@ -36,7 +36,7 @@ pub async fn remove_activity(
         if let Err(e) = activity {
             return create_error(
                 StatusCode::INTERNAL_SERVER_ERROR,
-                "Failed to find activity: ".to_string() + &e.to_string(),
+                format!("Failed to find activity: {}", e.to_string()),
             );
         }
         let activity = activity.unwrap();
@@ -54,7 +54,7 @@ pub async fn remove_activity(
     if let Err(e) = result {
         return create_error(
             StatusCode::INTERNAL_SERVER_ERROR,
-            "Failed to delete activity: ".to_string() + &e.to_string(),
+            format!("Failed to delete activity: {}", e.to_string()),
         );
     }
     let result = result.unwrap();

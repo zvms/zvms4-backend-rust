@@ -62,7 +62,7 @@ pub async fn read_all(
     if let Err(e) = count {
         return create_error(
             StatusCode::INTERNAL_SERVER_ERROR,
-            "Failed to read activity: ".to_string() + &e.to_string(),
+            format!("Failed to read activity: {}", e.to_string()),
         );
     }
     let pipeline = vec![
@@ -97,7 +97,7 @@ pub async fn read_all(
     if let Err(e) = cursor {
         return create_error(
             StatusCode::INTERNAL_SERVER_ERROR,
-            "Failed to read activity: ".to_string() + &e.to_string(),
+            format!("Failed to read activity: {}", e.to_string()),
         );
     }
     let mut cursor = cursor.unwrap();
@@ -107,7 +107,7 @@ pub async fn read_all(
         if let Err(e) = doc_result {
             return create_error(
                 StatusCode::INTERNAL_SERVER_ERROR,
-                "Failed to read activity: ".to_string() + &e.to_string(),
+                format!("Failed to read activity: {}", e.to_string()),
             );
         }
         if let Ok(Some(document)) = doc_result {
@@ -116,7 +116,7 @@ pub async fn read_all(
                 Err(e) => {
                     return create_error(
                         StatusCode::INTERNAL_SERVER_ERROR,
-                        "Failed to read activity: ".to_string() + &e.to_string(),
+                        format!("Failed to read activity: {}", e.to_string()),
                     )
                 }
             }
@@ -163,7 +163,7 @@ pub async fn read_one(
     if let Err(e) = result {
         return create_error(
             StatusCode::INTERNAL_SERVER_ERROR,
-            "Failed to read activity: ".to_string() + &e.to_string(),
+            format!("Failed to read activity: {}", e.to_string()),
         );
     }
     let result: Option<Activity> = result.unwrap();

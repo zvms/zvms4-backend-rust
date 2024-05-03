@@ -169,7 +169,7 @@ pub async fn update_member_impression(
     if let Err(e) = activity {
         return create_error(
             StatusCode::NOT_FOUND,
-            "Activity not found".to_string() + &e.to_string(),
+            format!("Activity not found: {}", e.to_string()),
         );
     }
     let member = bson::from_document::<ActivityMember>(activity.unwrap());
