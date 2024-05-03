@@ -6,7 +6,9 @@ mod models;
 mod routers;
 mod tests;
 mod utils;
+use crate::models::exports::ExportState;
 use axum::{
+    http::Method,
     routing::{delete, get, post, put},
     Extension, Router,
 };
@@ -16,8 +18,9 @@ use socketioxide::{
     extract::{AckSender, Bin, Data, SocketRef},
     SocketIo,
 };
-use std::sync::Arc;
+use std::{collections::HashMap, sync::Arc};
 use tokio::sync::Mutex;
+use tower_http::cors::{Any, CorsLayer};
 
 fn on_connect(socket: SocketRef, Data(data): Data<Value>) {
     socket.emit("auth", data).ok();
@@ -44,6 +47,8 @@ async fn main() {
     let client = database::create_client()
         .await
         .expect("Failed to create client");
+
+    let shared_export_state = Arc::new(Mutex::new(HashMap::new()) as ExportState);
 
     let shared_client = Arc::new(Mutex::new(client));
 
@@ -102,7 +107,18 @@ async fn main() {
             "/user/:user_id/time",
             get(routers::users::time::calculate_user_activity_time),
         )
-        .layer(Extension(shared_client.clone()));
+        .route("/export", post(routers::exports::export_activity_times))
+        .route(
+            "/export/:task_id",
+            get(routers::exports::query_export_status),
+        )
+        .layer(Extension(shared_client.clone()))
+        .layer(Extension(shared_export_state.clone()))
+        .layer(
+            CorsLayer::new()
+                .allow_methods([Method::GET, Method::POST, Method::PUT, Method::DELETE])
+                .allow_origin(Any),
+        );
 
     // Run the server
     let listener = tokio::net::TcpListener::bind("0.0.0.0:3000").await.unwrap();
