@@ -1846,6 +1846,12 @@ dependencies = [
 ]
 
 [[package]]
+name = "indoc"
+version = "1.0.9"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "bfa799dd5ed20a7e349f3b4639aa80d74549c81716d9ec4f994c9b5815598306"
+
+[[package]]
 name = "infer"
 version = "0.2.3"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -3153,6 +3159,65 @@ dependencies = [
 ]
 
 [[package]]
+name = "pyo3"
+version = "0.16.6"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "0220c44442c9b239dd4357aa856ac468a4f5e1f0df19ddb89b2522952eb4c6ca"
+dependencies = [
+ "cfg-if",
+ "indoc",
+ "libc",
+ "parking_lot",
+ "pyo3-build-config",
+ "pyo3-ffi",
+ "pyo3-macros",
+ "unindent",
+]
+
+[[package]]
+name = "pyo3-build-config"
+version = "0.16.6"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "9c819d397859445928609d0ec5afc2da5204e0d0f73d6bf9e153b04e83c9cdc2"
+dependencies = [
+ "once_cell",
+ "target-lexicon",
+]
+
+[[package]]
+name = "pyo3-ffi"
+version = "0.16.6"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "ca882703ab55f54702d7bfe1189b41b0af10272389f04cae38fe4cd56c65f75f"
+dependencies = [
+ "libc",
+ "pyo3-build-config",
+]
+
+[[package]]
+name = "pyo3-macros"
+version = "0.16.6"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "568749402955ad7be7bad9a09b8593851cd36e549ac90bfd44079cea500f3f21"
+dependencies = [
+ "proc-macro2",
+ "pyo3-macros-backend",
+ "quote",
+ "syn 1.0.109",
+]
+
+[[package]]
+name = "pyo3-macros-backend"
+version = "0.16.6"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "611f64e82d98f447787e82b8e7b0ebc681e1eb78fc1252668b2c605ffb4e1eb8"
+dependencies = [
+ "proc-macro2",
+ "quote",
+ "syn 1.0.109",
+]
+
+[[package]]
 name = "quick-error"
 version = "1.2.3"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -4282,6 +4347,12 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "c1bbb9f3c5c463a01705937a24fdabc5047929ac764b2d5b9cf681c1f5041ed5"
 
 [[package]]
+name = "target-lexicon"
+version = "0.12.14"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "e1fc403891a21bcfb7c37834ba66a547a8f402146eba7265b5a6d88059c9ff2f"
+
+[[package]]
 name = "tempfile"
 version = "3.10.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -4751,6 +4822,12 @@ name = "unicode-width"
 version = "0.1.12"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "68f5e5f3158ecfd4b8ff6fe086db7c8467a2dfdac97fe420f2b7c4aa97af66d6"
+
+[[package]]
+name = "unindent"
+version = "0.1.11"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "e1766d682d402817b5ac4490b3c3002d91dfa0d22812f341609f97b08757359c"
 
 [[package]]
 name = "universal-hash"
@@ -5257,6 +5334,7 @@ dependencies = [
  "once_cell",
  "pem",
  "polars",
+ "pyo3",
  "rand 0.8.5",
  "reqwest",
  "rsa",

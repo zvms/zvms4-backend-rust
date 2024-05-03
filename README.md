@@ -13,3 +13,11 @@ Technologies used:
 - `axum`: Web framework
 - `tokio`: Async runtime
 - `mongodb`: Database
+
+> Remember to export the Python DLIB path before running the project.
+
+For example:
+
+```bash
+export DYLD_LIBRARY_PATH=/opt/anaconda3/envs/zvms/lib:$DYLD_LIBRARY_PATH
+```

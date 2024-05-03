@@ -12,7 +12,7 @@ pub enum ResponseStatus {
 #[derive(Debug, Serialize, Deserialize, Clone, PartialEq, Eq, Hash)]
 pub struct SuccessResponse<T, M> {
     pub status: ResponseStatus,
-    pub code: i32,
+    pub code: u16,
     pub data: T,
     pub metadata: Option<M>,
 }

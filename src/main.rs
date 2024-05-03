@@ -94,6 +94,14 @@ async fn main() {
             put(routers::activities::members::update::update_member_impression),
         )
         .route("/user/auth", post(routers::auth::login))
+        .route(
+            "/user/:user_id/activity",
+            get(routers::users::activity::read_user_activities),
+        )
+        .route(
+            "/user/:user_id/time",
+            get(routers::users::time::calculate_user_activity_time),
+        )
         .layer(Extension(shared_client.clone()));
 
     // Run the server
