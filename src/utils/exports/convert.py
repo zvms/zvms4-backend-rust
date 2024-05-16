@@ -1,3 +1,7 @@
-def to_excel(input_path: str, output_path: str):
-    import pandas as pd
-    pd.read_csv(input_path, encoding='utf-8').to_excel(output_path, index=False)
+def arrow_to_excel(
+    arrow_batch,
+    dest_path: str,
+):
+    import polars as pl
+    batch = pl.from_arrow(arrow_batch)
+    batch.write_excel(dest_path)

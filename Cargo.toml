@@ -55,7 +55,6 @@ tracing-subscriber = { version = "0.3.18", features = [
     "regex",
 ] }
 uuid = { version = "1.8.0", features = ["v1", "v4", "serde"] }
-xlsxwriter = "0.6.0"
 zerocopy = "0.7.32"
 
 [profile.release]
