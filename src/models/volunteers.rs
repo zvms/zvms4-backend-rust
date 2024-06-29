@@ -1,7 +1,6 @@
-use crate::models::activities::datetime_or_u64;
+use crate::models::utils::datetime_or_u64;
 use bson::oid::ObjectId;
 use serde::{Deserialize, Serialize};
-use std::str::FromStr;
 
 #[derive(Debug, Serialize, Deserialize, Clone, PartialEq, Eq, Hash)]
 pub enum VolunteerType {
@@ -23,25 +22,6 @@ pub enum VolunteerMode {
     OnCampus,
     OffCampus,
     SocialPractice,
-}
-
-#[derive(Debug, Serialize, Deserialize, Clone, PartialEq, Eq, Hash)]
-pub enum VolunteerMemberStatus {
-    Effective,
-    Pending,
-    Refused,
-    Rejected,
-    Draft,
-}
-
-#[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
-pub struct VolunteerMember {
-    pub _id: ObjectId,
-    pub user: ObjectId,
-    pub status: VolunteerMemberStatus,
-    pub impression: Option<String>,
-    pub duration: f64,
-    pub mode: VolunteerMode,
 }
 
 #[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]

@@ -3,13 +3,12 @@ mod calc;
 mod database;
 mod launch;
 mod models;
-mod routers;
+// mod routers;
 mod tests;
 mod utils;
 use crate::models::exports::ExportState;
 use axum::{
     http::Method,
-    routing::{delete, get, post, put},
     Extension, Router,
 };
 use launch::{generate_aes_key, generate_rsa_keypair};
@@ -64,54 +63,6 @@ async fn main() {
 
     // Set up the router
     let app = Router::new()
-        .route("/activity/", get(routers::activities::read::read_all))
-        .route(
-            "/activity/",
-            post(routers::activities::insert::insert_activity),
-        )
-        .route("/activity/:id", get(routers::activities::read::read_one))
-        .route(
-            "/activity/:id",
-            delete(routers::activities::remove::remove_activity),
-        )
-        .route(
-            "/activity/:id/name",
-            put(routers::activities::update::update_activity_name),
-        )
-        .route(
-            "/activity/:id/description",
-            put(routers::activities::update::update_activity_description),
-        )
-        .route(
-            "/activity/:id/member/:member_id",
-            get(routers::activities::members::read::read_member),
-        )
-        .route(
-            "/activity/:id/member",
-            post(routers::activities::members::insert::insert_member_into_activity),
-        )
-        .route(
-            "/activity/:id/member/:member_id/status",
-            put(routers::activities::members::update::update_member_status),
-        )
-        .route(
-            "/activity/:id/member/:member_id/impression",
-            put(routers::activities::members::update::update_member_impression),
-        )
-        .route("/user/auth", post(routers::auth::login))
-        .route(
-            "/user/:user_id/activity",
-            get(routers::users::activity::read_user_activities),
-        )
-        .route(
-            "/user/:user_id/time",
-            get(routers::users::time::calculate_user_activity_time),
-        )
-        .route("/export", post(routers::exports::export_activity_times))
-        .route(
-            "/export/:task_id",
-            get(routers::exports::query_export_status),
-        )
         .layer(Extension(shared_client.clone()))
         .layer(Extension(shared_export_state.clone()))
         .layer(

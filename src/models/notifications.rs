@@ -1,4 +1,4 @@
-use crate::models::activities::datetime_or_u64;
+use crate::models::utils::datetime_or_u64;
 use bson::oid::ObjectId;
 use serde::{Deserialize, Serialize};
 
