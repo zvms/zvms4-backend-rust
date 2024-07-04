@@ -7,7 +7,6 @@ edition = "2021"
 
 [dependencies]
 aes = "0.8.4"
-anyhow = "1.0.86"
 axum = "0.7.5"
 axum-core = "0.4.3"
 axum-extra = { version = "0.9.3", features = [
@@ -26,7 +25,6 @@ chrono = { version = "0.4.38", features = ["serde"] }
 futures = "0.3.30"
 hex = { version = "0.4.3", features = ["serde"] }
 jsonwebtoken = "9.3.0"
-magic = "0.16.2"
 mongodb = { version = "2.8.2", features = ["async-std"] }
 once_cell = "1.19.0"
 pem = { version = "3.0.4", features = ["serde"] }
@@ -35,7 +33,7 @@ pyo3 = { version = "0.21.2", features = ["auto-initialize"] }
 rand = "0.8.5"
 reqwest = "0.12.3"
 rsa = "0.9.6"
-serde = { version = "1.0.198", features = ["derive"] }
+serde = "1.0.198"
 serde_json = "1.0.116"
 serde_qs = { version = "0.13.0", features = ["axum"] }
 socketioxide = { version = "0.12.0", features = [
@@ -57,6 +55,7 @@ tracing-subscriber = { version = "0.3.18", features = [
     "regex",
 ] }
 uuid = { version = "1.8.0", features = ["v1", "v4", "serde"] }
+xlsxwriter = "0.6.0"
 zerocopy = "0.7.32"
 
 [profile.release]
