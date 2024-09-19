@@ -573,9 +573,9 @@ dependencies = [
 
 [[package]]
 name = "bson"
-version = "2.10.0"
+version = "2.13.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "4d43b38e074cc0de2957f10947e376a1d88b9c4dbab340b590800cc1b2e066b2"
+checksum = "068208f2b6fcfa27a7f1ee37488d2bb8ba2640f68f5475d08e1d9130696aba59"
 dependencies = [
  "ahash",
  "base64 0.13.1",
@@ -2066,28 +2066,6 @@ checksum = "57d27b317e207b10f69f5e75494119e391a96f48861ae870d1da6edac98ca900"
 dependencies = [
  "cc",
  "libc",
-]
-
-[[package]]
-name = "magic"
-version = "0.16.2"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "a200ae03df8c3dce7a963f6eeaac8feb41bf9001cb7e5ab22e3205aec2f0373d"
-dependencies = [
- "bitflags 2.5.0",
- "libc",
- "magic-sys",
- "thiserror",
-]
-
-[[package]]
-name = "magic-sys"
-version = "0.3.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "eff86ae08895140d628119d407d568f3b657145ee8c265878064f717534bb3bc"
-dependencies = [
- "libc",
- "vcpkg",
 ]
 
 [[package]]
@@ -5231,7 +5209,6 @@ name = "zvms_backend"
 version = "0.1.0"
 dependencies = [
  "aes 0.8.4",
- "anyhow",
  "axum",
  "axum-core",
  "axum-extra",
@@ -5244,7 +5221,6 @@ dependencies = [
  "futures",
  "hex",
  "jsonwebtoken",
- "magic",
  "mongodb",
  "once_cell",
  "pem",
